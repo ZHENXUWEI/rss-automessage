@@ -1,0 +1,43 @@
+{
+  "modmenu.nameTranslation.rss-automessage": "RS's 自动消息",
+  "modmenu.descriptionTranslation.rss-automessage": "自动定时发送消息和自动回复模组，支持指令发送",
+
+  "config.auto-messenger.title": "RS's 自动消息 设置",
+
+  "config.auto-messenger.category.scheduled": "定时发送",
+  "config.auto-messenger.category.reply": "自动回复",
+  "config.auto-messenger.category.display": "显示设置",
+
+  "config.auto-messenger.enable_scheduled": "启用定时发送",
+  "config.auto-messenger.enable_scheduled.desc": "开启后按设定间隔自动发送消息列表中的内容",
+
+  "config.auto-messenger.send_on_join": "进入服务器时发送",
+  "config.auto-messenger.send_on_join.desc": "进入服务器时立即发送一次消息列表中的所有内容",
+
+  "config.auto-messenger.send_interval": "发送间隔 (毫秒)",
+  "config.auto-messenger.send_interval.desc": "每次发送的间隔时间，单位毫秒 (1000ms = 1秒，建议最小5000ms)",
+
+  "config.auto-messenger.enable_loop": "启用循环发送",
+  "config.auto-messenger.enable_loop.desc": "到达间隔后重复发送消息列表（关闭则只发送一次）",
+
+  "config.auto-messenger.scheduled_list": "定时发送列表",
+  "config.auto-messenger.scheduled_list.desc": "间隔到达时一次性发送列表中的所有内容。格式: 内容|msg(普通消息) 或 内容|cmd(指令，自动加/)",
+
+  "config.auto-messenger.enable_autoreply": "启用自动回复",
+  "config.auto-messenger.enable_autoreply.desc": "检测到关键词时自动回复指定内容",
+
+  "config.auto-messenger.trigger_keywords": "触发关键词列表",
+  "config.auto-messenger.trigger_keywords.desc": "收到包含列表中任一关键词的消息时触发自动回复（不区分大小写）",
+
+  "config.auto-messenger.reply_message": "回复消息内容",
+  "config.auto-messenger.reply_message.desc": "触发关键词后自动发送的消息内容（支持以/开头的指令）",
+
+  "config.auto-messenger.reply_cooldown": "回复冷却 (毫秒)",
+  "config.auto-messenger.reply_cooldown.desc": "两次自动回复之间的最小间隔，单位毫秒（防止刷屏）",
+
+  "config.auto-messenger.show_countdown": "显示倒计时",
+  "config.auto-messenger.show_countdown.desc": "在屏幕左下角显示下次发送的剩余时间（修改后需重启游戏）",
+
+  "hud.rss-automessage.countdown": "下次发送: %s",
+  "hud.rss-automessage.empty": "无定时消息"
+}

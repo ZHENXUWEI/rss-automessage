@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "rss-automessage",
+  "version": "${version}",
+  "name": "RS's AutoMessage",
+  "description": "自动定时发送消息和自动回复模组",
+  "authors": [
+    "Me!"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/rss-automessage/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "cn.islys.RSsAutoMessage"
+    ],
+    "client": [
+      "cn.islys.RSsAutoMessageClient"
+    ],
+    "modmenu": [
+      "cn.islys.ModMenuApiImpl"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.13",
+    "minecraft": ">=1.21.8",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "modmenu": ">=15.0.0"
+  }
+}

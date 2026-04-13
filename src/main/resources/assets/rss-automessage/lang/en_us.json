@@ -1,0 +1,43 @@
+{
+  "modmenu.nameTranslation.rss-automessage": "RS's AutoMessage",
+  "modmenu.descriptionTranslation.rss-automessage": "Auto send messages at intervals and auto-reply mod with command support",
+
+  "config.auto-messenger.title": "RS's AutoMessage Settings",
+
+  "config.auto-messenger.category.scheduled": "Scheduled Messages",
+  "config.auto-messenger.category.reply": "Auto Reply",
+  "config.auto-messenger.category.display": "Display Settings",
+
+  "config.auto-messenger.enable_scheduled": "Enable Scheduled Messages",
+  "config.auto-messenger.enable_scheduled.desc": "Automatically send all messages in list at set intervals",
+
+  "config.auto-messenger.send_on_join": "Send on Join",
+  "config.auto-messenger.send_on_join.desc": "Send all messages immediately when joining a server",
+
+  "config.auto-messenger.send_interval": "Send Interval (ms)",
+  "config.auto-messenger.send_interval.desc": "Interval between sends in milliseconds (1000ms = 1s, min 5000ms recommended)",
+
+  "config.auto-messenger.enable_loop": "Enable Loop",
+  "config.auto-messenger.enable_loop.desc": "Repeat sending messages when interval reached (disable to send once only)",
+
+  "config.auto-messenger.scheduled_list": "Message List",
+  "config.auto-messenger.scheduled_list.desc": "All messages sent at once when interval reached. Format: content|msg (chat) or content|cmd (command, auto adds /)",
+
+  "config.auto-messenger.enable_autoreply": "Enable Auto Reply",
+  "config.auto-messenger.enable_autoreply.desc": "Auto reply when trigger keywords are detected",
+
+  "config.auto-messenger.trigger_keywords": "Trigger Keywords",
+  "config.auto-messenger.trigger_keywords.desc": "Auto reply when message contains any of these keywords (case insensitive)",
+
+  "config.auto-messenger.reply_message": "Reply Message",
+  "config.auto-messenger.reply_message.desc": "Message to send when triggered (supports commands starting with /)",
+
+  "config.auto-messenger.reply_cooldown": "Reply Cooldown (ms)",
+  "config.auto-messenger.reply_cooldown.desc": "Minimum interval between auto replies in milliseconds (anti-spam)",
+
+  "config.auto-messenger.show_countdown": "Show Countdown",
+  "config.auto-messenger.show_countdown.desc": "Display countdown timer at bottom left (requires game restart)",
+
+  "hud.rss-automessage.countdown": "Next: %s",
+  "hud.rss-automessage.empty": "No scheduled messages"
+}
