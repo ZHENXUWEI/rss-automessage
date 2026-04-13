@@ -24,26 +24,25 @@ public class AutoMessengerConfig {
     @SerialEntry
     public boolean sendOnJoin = true;
 
-    // 定时发送列表 - 间隔到了一次性发送所有
     @SerialEntry
     public List<String> scheduledMessageList = new ArrayList<>(Arrays.asList(
             "欢迎来到服务器！|msg",
             "warp spawn|cmd",
-            "祝大家游戏愉快！|msg"
+            "祝游戏愉快！|msg"
     ));
 
-    // 发送间隔（毫秒）
     @SerialEntry
-    public int sendIntervalMs = 300000; // 默认5分钟 = 300000ms
+    public int currentMessageIndex = 0;
 
     @SerialEntry
     public boolean enableLoop = true;
 
-    // 自动回复设置
+    @SerialEntry
+    public int sendIntervalMs = 300000; // 默认5分钟 = 300000ms
+
     @SerialEntry
     public boolean enableAutoReply = false;
 
-    // 触发关键词列表（多对一）
     @SerialEntry
     public List<String> autoReplyTriggers = new ArrayList<>(Arrays.asList(
             "你好",
@@ -55,12 +54,18 @@ public class AutoMessengerConfig {
     @SerialEntry
     public String autoReplyMessage = "我在挂机，稍后回复~";
 
-    // 自动回复冷却时间（毫秒）
     @SerialEntry
     public int autoReplyCooldownMs = 3000;
 
     @SerialEntry
     public boolean showCountdown = true;
+
+    // ===== 新增字段 =====
+    @SerialEntry
+    public boolean showAllMessages = false;  // 是否显示全部消息（警告：大量数据可能卡顿）
+
+    @SerialEntry
+    public boolean randomSend = false;  // 随机发送顺序
 
     public static AutoMessengerConfig getInstance() {
         return HANDLER.instance();

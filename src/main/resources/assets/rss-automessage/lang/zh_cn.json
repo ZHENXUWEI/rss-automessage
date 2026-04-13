@@ -21,7 +21,7 @@
   "config.auto-messenger.enable_loop.desc": "到达间隔后重复发送消息列表（关闭则只发送一次）",
 
   "config.auto-messenger.scheduled_list": "定时发送列表",
-  "config.auto-messenger.scheduled_list.desc": "间隔到达时一次性发送列表中的所有内容。格式: 内容|msg(普通消息) 或 内容|cmd(指令，自动加/)",
+  "config.auto-messenger.scheduled_list.desc": "间隔到达时一次性发送所有内容。格式: 内容|msg 或 内容|cmd。大量消息建议使用TXT导入",
 
   "config.auto-messenger.enable_autoreply": "启用自动回复",
   "config.auto-messenger.enable_autoreply.desc": "检测到关键词时自动回复指定内容",
@@ -39,5 +39,8 @@
   "config.auto-messenger.show_countdown.desc": "在屏幕左下角显示下次发送的剩余时间（修改后需重启游戏）",
 
   "hud.rss-automessage.countdown": "下次发送: %s",
-  "hud.rss-automessage.empty": "无定时消息"
+  "hud.rss-automessage.empty": "无定时消息",
+
+  "config.auto-messenger.random_send": "随机发送顺序",
+  "config.auto-messenger.random_send.desc": "开启后每次随机打乱发送顺序"
 }

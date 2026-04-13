@@ -1,8 +1,10 @@
 package cn.islys;
 
+import cn.islys.command.AutoMessageCommand;
 import cn.islys.config.AutoMessengerConfig;
 import cn.islys.config.AutoMessengerConfig.MessageEntry;
 import cn.islys.hud.CountdownHud;
+import cn.islys.util.MessageImporter;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
@@ -52,6 +54,12 @@ public class RSsAutoMessageClient implements ClientModInitializer {
         });
 
         countdownHud.register();
+
+        // 注册命令
+        AutoMessageCommand.register();
+
+        // 启动时检查并创建示例文件
+        MessageImporter.createExampleFile();
     }
 
     private void onServerJoined() {
@@ -145,6 +153,25 @@ public class RSsAutoMessageClient implements ClientModInitializer {
             pendingMessages = null;
             sendIndex = 0;
         }
+    }
+
+//    实现随机发送
+    private void sendAllScheduledMessages() {
+        Minecraft client = Minecraft.getInstance();
+        if (client.player == null) return;
+
+        AutoMessengerConfig config = AutoMessengerConfig.getInstance();
+        List<MessageEntry> messages = config.getScheduledMessages();
+
+        // 如果开启随机，打乱顺序
+        if (config.randomSend && messages.size() > 1) {
+            java.util.Collections.shuffle(messages);
+        }
+
+        // 批量发送（每3tick一条）
+        this.pendingMessages = messages;
+        this.sendIndex = 0;
+        this.sendTickDelay = 0;
     }
 
     public void sendMessage(String message) {
