@@ -8,13 +8,14 @@ import net.minecraft.client.gui.GuiGraphics;
 
 public class CountdownHud {
     private int remainingMs = 0;
-    private static final int COLOR_NORMAL = 0xFFFFFF;
-    private static final int COLOR_WARNING = 0xFFAA00;
-    private static final int COLOR_URGENT = 0xFF5555;
+    private int lastLoggedSecond = -1;
+    private static final int COLOR_NORMAL = 0xFFFFFF;   // 纯白色，最醒目
+    private static final int COLOR_WARNING = 0xFFAA00;  // 橙色
+    private static final int COLOR_URGENT = 0xFF0000;   // 纯红色
 
     public void register() {
         HudRenderCallback.EVENT.register((guiGraphics, tickDelta) -> {
-            this.render(guiGraphics);
+            render(guiGraphics);
         });
     }
 
@@ -25,51 +26,60 @@ public class CountdownHud {
     private void render(GuiGraphics guiGraphics) {
         AutoMessengerConfig config = AutoMessengerConfig.getInstance();
 
-        // 检查是否应该显示
-        if (!config.showCountdown || !config.enableScheduledMessages || !config.enableLoop) {
-            return;
-        }
+        if (!config.showCountdown) return;
+        if (!config.enableScheduledMessages) return;
+        if (config.scheduledMessageList == null || config.scheduledMessageList.isEmpty()) return;
 
         Minecraft client = Minecraft.getInstance();
-        if (client.player == null) return;
-
-        // 没有内容时不显示
-        if (remainingMs <= 0 && !config.enableLoop) return;
+        if (client.player == null || client.options.hideGui) return;
 
         Font font = client.font;
-        int screenHeight = client.getWindow().getGuiScaledHeight();
+        if (font == null) return;  // 安全检查
 
-        String timeText = formatTime(remainingMs);
-        String label = config.scheduledMessageList.isEmpty() ? "" : "下次发送: ";
-        String display = label + timeText;
+        int screenHeight = client.getWindow().getGuiScaledHeight();
+        int screenWidth = client.getWindow().getGuiScaledWidth();
+
+        // 硬编码ASCII字符，避免编码问题
+        String timeStr = formatTime(remainingMs);
+        String text = "Next: " + timeStr;
 
         int color;
-        if (remainingMs <= 5000) color = COLOR_URGENT;      // 5秒内红色
-        else if (remainingMs <= 10000) color = COLOR_WARNING; // 10秒内黄色
+        if (remainingMs <= 5000) color = COLOR_URGENT;
+        else if (remainingMs <= 10000) color = COLOR_WARNING;
         else color = COLOR_NORMAL;
 
-        int x = 10;
-        int y = screenHeight - 30;
+        // 紧贴左下角
+        int x = 2;
+        int y = screenHeight - 11;  // 微调，对齐像素
 
-        int textWidth = font.width(display);
-        guiGraphics.fill(x - 2, y - 2, x + textWidth + 2, y + font.lineHeight + 2, 0x80000000);
-        guiGraphics.drawString(font, display, x, y, color, true);
+        int textWidth = font.width(text);
+        int textHeight = 8;  // 字体高度
+
+        // 绘制背景（先画背景，再画文字）
+        guiGraphics.fill(x - 2, y - 2, x + textWidth + 4, y + textHeight + 2, 0x44000000);
+
+        // 绘制文字（强制白色，带阴影）
+        guiGraphics.drawString(font, text, x, y, 0xFFFFFFFF, true);
+
+        // 每秒日志一次
+        int currentSecond = remainingMs / 1000;
+        if (currentSecond != lastLoggedSecond) {
+            System.out.println("[AutoMessage] Countdown: " + text + " (Color: " + Integer.toHexString(color) + ")");
+            lastLoggedSecond = currentSecond;
+        }
     }
 
     private String formatTime(int ms) {
         if (ms < 0) ms = 0;
+        int totalSeconds = ms / 1000;
+        int seconds = totalSeconds % 60;
+        int minutes = (totalSeconds / 60) % 60;
+        int hours = totalSeconds / 3600;
 
-        int seconds = ms / 1000;
-        int minutes = seconds / 60;
-        int hours = minutes / 60;
-
-        seconds = seconds % 60;
-        minutes = minutes % 60;
-
+        // 纯ASCII格式
         if (hours > 0) {
             return String.format("%d:%02d:%02d", hours, minutes, seconds);
-        } else {
-            return String.format("%02d:%02d", minutes, seconds);
         }
+        return String.format("%02d:%02d", minutes, seconds);
     }
 }

@@ -18,71 +18,80 @@ public class RSsAutoMessageClient implements ClientModInitializer {
     private final AutoReplyHandler autoReply = new AutoReplyHandler();
     private final CountdownHud countdownHud = new CountdownHud();
 
-    // 定时器（毫秒计算）
+    // 定时器
     private long lastSendTime = 0;
     private int remainingMs = 0;
+
+    // 批量发送状态
+    private List<MessageEntry> pendingMessages = null;
+    private int sendIndex = 0;
+    private int sendTickDelay = 0;
 
     @Override
     public void onInitializeClient() {
         instance = this;
 
-        // 加载配置
         AutoMessengerConfig.load();
 
-        // 注册进入服务器事件
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             onServerJoined();
         });
 
-        // 注册离开服务器事件
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             onServerLeft();
         });
 
-        // 注册接收聊天消息事件（用于自动回复）
         ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
             if (!overlay) {
                 autoReply.onChatMessage(message.getString());
             }
         });
 
-        // 注册客户端 Tick 事件
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            onClientTick();
+            onClientTick(client);
         });
 
-        // 注册 HUD 渲染
         countdownHud.register();
     }
 
     private void onServerJoined() {
         AutoMessengerConfig config = AutoMessengerConfig.getInstance();
 
-        // 发送加入时的消息（一次性发送所有）
         if (config.sendOnJoin && config.enableScheduledMessages) {
-            sendAllScheduledMessages();
+            startBatchSend(config.getScheduledMessages());
         }
 
-        // 初始化倒计时
         if (config.enableScheduledMessages) {
             remainingMs = config.sendIntervalMs;
-            countdownHud.updateCountdown(remainingMs);
         }
 
         lastSendTime = System.currentTimeMillis();
+        countdownHud.updateCountdown(remainingMs);
         AutoMessengerConfig.save();
     }
 
     private void onServerLeft() {
+        pendingMessages = null;
+        sendIndex = 0;
         remainingMs = 0;
         countdownHud.updateCountdown(0);
     }
 
-    private void onClientTick() {
-        Minecraft client = Minecraft.getInstance();
+    private void onClientTick(Minecraft client) {
         if (client.player == null || client.getConnection() == null) return;
 
         AutoMessengerConfig config = AutoMessengerConfig.getInstance();
+
+        // 处理批量发送（每3tick发送一条，避免卡顿）
+        if (pendingMessages != null && !pendingMessages.isEmpty()) {
+            sendTickDelay++;
+            if (sendTickDelay >= 3) { // 每3tick（约150ms）发送一条
+                sendTickDelay = 0;
+                sendNextPendingMessage(client);
+            }
+            return; // 发送期间不检查间隔
+        }
+
         if (!config.enableScheduledMessages || !config.enableLoop) return;
 
         // 计算剩余时间
@@ -93,40 +102,48 @@ public class RSsAutoMessageClient implements ClientModInitializer {
         // 更新倒计时显示
         countdownHud.updateCountdown(remainingMs);
 
-        // 时间到了，发送所有消息
+        // 时间到了，开始批量发送
         if (remainingMs <= 0) {
-            sendAllScheduledMessages();
+            startBatchSend(config.getScheduledMessages());
             lastSendTime = now;
             remainingMs = config.sendIntervalMs;
             AutoMessengerConfig.save();
         }
     }
 
-    // 一次性发送列表中的所有消息
-    private void sendAllScheduledMessages() {
-        Minecraft client = Minecraft.getInstance();
-        if (client.player == null) return;
+    // 开始批量发送
+    private void startBatchSend(List<MessageEntry> messages) {
+        if (messages == null || messages.isEmpty()) return;
+        this.pendingMessages = messages;
+        this.sendIndex = 0;
+        this.sendTickDelay = 0;
+    }
 
-        AutoMessengerConfig config = AutoMessengerConfig.getInstance();
-        List<MessageEntry> messages = config.getScheduledMessages();
+    // 发送下一条待处理的消息
+    private void sendNextPendingMessage(Minecraft client) {
+        if (pendingMessages == null || sendIndex >= pendingMessages.size()) {
+            pendingMessages = null;
+            sendIndex = 0;
+            return;
+        }
 
-        for (MessageEntry entry : messages) {
-            String msg = entry.getSendText();
-            if (msg.isEmpty()) continue;
+        MessageEntry entry = pendingMessages.get(sendIndex);
+        String msg = entry.getSendText();
 
+        if (!msg.isEmpty()) {
             if (entry.isCommand) {
                 client.player.connection.sendCommand(msg);
             } else {
                 client.player.connection.sendChat(msg);
             }
+        }
 
-            // 每条消息间隔100ms，避免发送过快
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
+        sendIndex++;
+
+        // 全部发送完毕
+        if (sendIndex >= pendingMessages.size()) {
+            pendingMessages = null;
+            sendIndex = 0;
         }
     }
 

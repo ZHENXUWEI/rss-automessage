@@ -1,8 +1,8 @@
 {
-  "modmenu.nameTranslation.rss-automessage": "RS's 自动消息",
+  "modmenu.nameTranslation.rss-automessage": "RS的自动消息",
   "modmenu.descriptionTranslation.rss-automessage": "自动定时发送消息和自动回复模组，支持指令发送",
 
-  "config.auto-messenger.title": "RS's 自动消息 设置",
+  "config.auto-messenger.title": "RS的自动消息 设置",
 
   "config.auto-messenger.category.scheduled": "定时发送",
   "config.auto-messenger.category.reply": "自动回复",
