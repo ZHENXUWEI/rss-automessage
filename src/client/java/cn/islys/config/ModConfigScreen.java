@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class ModConfigScreen {
 
     public static Screen create(Screen parent) {
-        AutoMessengerConfig config = AutoMessengerConfig.HANDLER.instance();
+        AutoMessengerConfig config = AutoMessengerConfig.getInstance();
         AutoMessengerConfig defaults = new AutoMessengerConfig();
 
         return YetAnotherConfigLib.createBuilder()
@@ -28,7 +28,7 @@ public class ModConfigScreen {
                 .category(buildScheduledCategory(defaults, config))
                 .category(buildReplyCategory(defaults, config))
                 .category(buildDisplayCategory(defaults, config))
-                .save(() -> AutoMessengerConfig.HANDLER.save())
+                .save(() -> AutoMessengerConfig.save())
                 .build()
                 .generateScreen(parent);
     }
@@ -70,32 +70,36 @@ public class ModConfigScreen {
                 value -> config.enableLoop = value
         ));
 
+        // 随机发送顺序 - 使用翻译键
         scheduledCat.option(Option.<Boolean>createBuilder()
-                .name(Component.literal("随机发送顺序"))
-                .description(OptionDescription.of(Component.literal("开启后每次随机打乱发送顺序")))
+                .name(Component.translatable("config.auto-messenger.random_send"))
+                .description(OptionDescription.of(Component.translatable("config.auto-messenger.random_send.desc")))
                 .binding(defaults.randomSend, () -> config.randomSend, value -> config.randomSend = value)
                 .controller(TickBoxControllerBuilder::create)
                 .build());
 
-        // 消息统计组
+        // 消息统计组 - 使用翻译键
         OptionGroup.Builder statsGroup = OptionGroup.createBuilder()
-                .name(Component.literal("📋 消息统计 (" + config.scheduledMessageList.size() + " 条)"));
+                .name(Component.translatable("config.auto-messenger.stats_group.name", config.scheduledMessageList.size()));
 
         if (config.scheduledMessageList.size() > 100) {
             statsGroup.option(Option.<Boolean>createBuilder()
-                    .name(Component.literal("⚠️ 显示全部消息（可能卡顿）"))
-                    .description(OptionDescription.of(Component.literal("当前有 " + config.scheduledMessageList.size() + " 条消息")))
+                    .name(Component.translatable("config.auto-messenger.show_all_messages"))
+                    .description(OptionDescription.of(Component.translatable("config.auto-messenger.show_all_messages.desc", config.scheduledMessageList.size())))
                     .binding(defaults.showAllMessages, () -> config.showAllMessages, value -> config.showAllMessages = value)
                     .controller(TickBoxControllerBuilder::create)
                     .build());
         }
 
-        statsGroup.option(LabelOption.create(Component.literal(
-                "§7共 " + config.scheduledMessageList.size() + " 条" +
-                        (config.scheduledMessageList.size() > 100 && !config.showAllMessages ? "（显示前100条）" : ""))));
+        // 统计信息文本 - 使用翻译键
+        String statsKey = (config.scheduledMessageList.size() > 100 && !config.showAllMessages)
+                ? "config.auto-messenger.stats.info.limited"
+                : "config.auto-messenger.stats.info.all";
+        statsGroup.option(LabelOption.create(Component.translatable(statsKey, config.scheduledMessageList.size())));
 
+        // 清空列表按钮 - 使用翻译键
         statsGroup.option(ButtonOption.createBuilder()
-                .name(Component.literal("🗑️ 清空列表"))
+                .name(Component.translatable("config.auto-messenger.clear_list"))
                 .action((screen, option) -> {
                     config.scheduledMessageList.clear();
                     AutoMessengerConfig.save();
@@ -105,7 +109,7 @@ public class ModConfigScreen {
 
         scheduledCat.group(statsGroup.build());
 
-        // ListOption 直接作为 group
+        // ListOption
         int maxEntries = (config.showAllMessages || config.scheduledMessageList.size() <= 100) ? 10000 : 100;
 
         scheduledCat.group(ListOption.<String>createBuilder()
@@ -121,16 +125,16 @@ public class ModConfigScreen {
                         },
                         newVal -> config.scheduledMessageList = new ArrayList<>(newVal)
                 )
-                .initial("新消息|msg")
+                .initial(Component.translatable("config.auto-messenger.message_entry.default").getString())
                 .controller(StringControllerBuilder::create)
                 .minimumNumberOfEntries(0)
                 .maximumNumberOfEntries(maxEntries)
                 .insertEntriesAtEnd(true)
                 .build());
 
-        // 文件操作组
+        // 文件操作组 - 使用翻译键
         OptionGroup.Builder fileGroup = OptionGroup.createBuilder()
-                .name(Component.literal("📁 文件操作"))
+                .name(Component.translatable("config.auto-messenger.file_operations"))
                 .collapsed(false);
 
         addFileButtons(fileGroup, config);
@@ -139,7 +143,6 @@ public class ModConfigScreen {
         return scheduledCat.build();
     }
 
-    // 辅助方法
     private static Option<Boolean> createBoolOption(Component name, Component desc,
                                                     boolean defaultVal, Supplier<Boolean> getter, Consumer<Boolean> setter) {
         return Option.<Boolean>createBuilder()
@@ -151,54 +154,57 @@ public class ModConfigScreen {
     }
 
     private static void addFileButtons(OptionGroup.Builder group, AutoMessengerConfig config) {
+        // 浏览选择文件按钮 - 使用翻译键
         group.option(ButtonOption.createBuilder()
-                .name(Component.literal("🗂️ 浏览选择TXT文件..."))
+                .name(Component.translatable("config.auto-messenger.browse_file"))
                 .action((screen, option) -> {
                     Minecraft client = Minecraft.getInstance();
-                    client.gui.getChat().addMessage(Component.literal("⏳ 正在打开系统文件对话框...").withStyle(ChatFormatting.YELLOW));
+                    client.gui.getChat().addMessage(Component.translatable("chat.auto-messenger.opening_dialog").withStyle(ChatFormatting.YELLOW));
 
                     new Thread(() -> {
                         Optional<Path> selected = FileDialogUtil.showOpenDialog();
                         client.execute(() -> {
                             selected.ifPresentOrElse(path -> {
-                                client.gui.getChat().addMessage(Component.literal("⏳ 正在导入: " + path.getFileName()).withStyle(ChatFormatting.YELLOW));
+                                client.gui.getChat().addMessage(Component.translatable("chat.auto-messenger.importing", path.getFileName()).withStyle(ChatFormatting.YELLOW));
                                 new Thread(() -> {
                                     MessageImporter.ImportResult result = MessageImporter.importFromFile(path);
                                     client.execute(() -> {
                                         if (result.success()) {
-                                            client.gui.getChat().addMessage(Component.literal("✓ " + result.message()).withStyle(ChatFormatting.GREEN));
+                                            client.gui.getChat().addMessage(Component.translatable("chat.auto-messenger.import.success", result.message()).withStyle(ChatFormatting.GREEN));
                                             client.setScreen(ModConfigScreen.create(null));
                                         } else {
-                                            client.gui.getChat().addMessage(Component.literal("✗ " + result.message()).withStyle(ChatFormatting.RED));
+                                            client.gui.getChat().addMessage(Component.translatable("chat.auto-messenger.import.failed", result.message()).withStyle(ChatFormatting.RED));
                                         }
                                     });
                                 }, "AutoMessage-Import").start();
-                            }, () -> client.gui.getChat().addMessage(Component.literal("未选择文件").withStyle(ChatFormatting.GRAY)));
+                            }, () -> client.gui.getChat().addMessage(Component.translatable("chat.auto-messenger.no_file_selected").withStyle(ChatFormatting.GRAY)));
                         });
                     }, "FileDialog").start();
                 })
                 .build());
 
+        // 快速导入按钮 - 使用翻译键
         group.option(ButtonOption.createBuilder()
-                .name(Component.literal("📥 快速导入 messages.txt"))
+                .name(Component.translatable("config.auto-messenger.quick_import"))
                 .action((screen, option) -> {
                     Minecraft client = Minecraft.getInstance();
                     new Thread(() -> {
                         MessageImporter.ImportResult result = MessageImporter.importFromDefault();
                         client.execute(() -> {
                             if (result.success()) {
-                                client.gui.getChat().addMessage(Component.literal("✓ " + result.message()).withStyle(ChatFormatting.GREEN));
+                                client.gui.getChat().addMessage(Component.translatable("chat.auto-messenger.import.success", result.message()).withStyle(ChatFormatting.GREEN));
                                 client.setScreen(ModConfigScreen.create(null));
                             } else {
-                                client.gui.getChat().addMessage(Component.literal("✗ " + result.message()).withStyle(ChatFormatting.RED));
+                                client.gui.getChat().addMessage(Component.translatable("chat.auto-messenger.import.failed", result.message()).withStyle(ChatFormatting.RED));
                             }
                         });
                     }, "AutoMessage-Import").start();
                 })
                 .build());
 
+        // 打开配置文件夹按钮 - 使用翻译键
         group.option(ButtonOption.createBuilder()
-                .name(Component.literal("📂 打开配置文件夹"))
+                .name(Component.translatable("config.auto-messenger.open_folder"))
                 .action((screen, option) -> {
                     try {
                         java.nio.file.Path dir = MessageImporter.getConfigDir();
@@ -209,51 +215,53 @@ public class ModConfigScreen {
                         else if (os.contains("mac")) Runtime.getRuntime().exec("open \"" + dir + "\"");
                         else Runtime.getRuntime().exec("xdg-open \"" + dir + "\"");
 
-                        Minecraft.getInstance().gui.getChat().addMessage(Component.literal("✓ 已打开文件夹").withStyle(ChatFormatting.GREEN));
+                        Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("chat.auto-messenger.folder.opened").withStyle(ChatFormatting.GREEN));
                     } catch (Exception e) {
-                        Minecraft.getInstance().gui.getChat().addMessage(Component.literal("✗ 无法打开").withStyle(ChatFormatting.RED));
+                        Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("chat.auto-messenger.folder.failed").withStyle(ChatFormatting.RED));
                     }
                 })
                 .build());
     }
 
-    // ========== 自动回复分类 ==========
     private static ConfigCategory buildReplyCategory(AutoMessengerConfig defaults, AutoMessengerConfig config) {
         return ConfigCategory.createBuilder()
                 .name(Component.translatable("config.auto-messenger.category.reply"))
                 .option(createBoolOption(
                         Component.translatable("config.auto-messenger.enable_autoreply"),
-                        Component.empty(),
+                        Component.translatable("config.auto-messenger.enable_autoreply.desc"),
                         defaults.enableAutoReply,
                         () -> config.enableAutoReply,
                         value -> config.enableAutoReply = value))
                 .group(ListOption.<String>createBuilder()
                         .name(Component.translatable("config.auto-messenger.trigger_keywords"))
+                        .description(OptionDescription.of(Component.translatable("config.auto-messenger.trigger_keywords.desc")))
                         .binding(defaults.autoReplyTriggers, () -> new ArrayList<>(config.autoReplyTriggers), newVal -> {
                             config.autoReplyTriggers.clear(); config.autoReplyTriggers.addAll(newVal);
                         })
-                        .initial("关键词")
+                        .initial(Component.translatable("config.auto-messenger.keyword.default").getString())
                         .controller(StringControllerBuilder::create)
                         .build())
                 .option(Option.<String>createBuilder()
                         .name(Component.translatable("config.auto-messenger.reply_message"))
+                        .description(OptionDescription.of(Component.translatable("config.auto-messenger.reply_message.desc")))
                         .binding(defaults.autoReplyMessage, () -> config.autoReplyMessage, value -> config.autoReplyMessage = value)
                         .controller(StringControllerBuilder::create)
                         .build())
                 .option(Option.<Integer>createBuilder()
                         .name(Component.translatable("config.auto-messenger.reply_cooldown"))
+                        .description(OptionDescription.of(Component.translatable("config.auto-messenger.reply_cooldown.desc")))
                         .binding(defaults.autoReplyCooldownMs, () -> config.autoReplyCooldownMs, value -> config.autoReplyCooldownMs = Math.max(500, value))
                         .controller(opt -> IntegerFieldControllerBuilder.create(opt).min(500).max(60000))
                         .build())
                 .build();
     }
 
-    // ========== 显示设置分类 ==========
     private static ConfigCategory buildDisplayCategory(AutoMessengerConfig defaults, AutoMessengerConfig config) {
         return ConfigCategory.createBuilder()
                 .name(Component.translatable("config.auto-messenger.category.display"))
                 .option(Option.<Boolean>createBuilder()
                         .name(Component.translatable("config.auto-messenger.show_countdown"))
+                        .description(OptionDescription.of(Component.translatable("config.auto-messenger.show_countdown.desc")))
                         .binding(defaults.showCountdown, () -> config.showCountdown, value -> config.showCountdown = value)
                         .controller(TickBoxControllerBuilder::create)
                         .flag(OptionFlag.GAME_RESTART)

@@ -1,46 +1,56 @@
 {
-  "modmenu.nameTranslation.rss-automessage": "RS的自动消息",
-  "modmenu.descriptionTranslation.rss-automessage": "自动定时发送消息和自动回复模组，支持指令发送",
-
-  "config.auto-messenger.title": "RS的自动消息 设置",
+  "config.auto-messenger.title": "RS's AutoMessage 配置",
 
   "config.auto-messenger.category.scheduled": "定时发送",
   "config.auto-messenger.category.reply": "自动回复",
   "config.auto-messenger.category.display": "显示设置",
 
-  "config.auto-messenger.enable_scheduled": "启用定时发送",
-  "config.auto-messenger.enable_scheduled.desc": "开启后按设定间隔自动发送消息列表中的内容",
-
-  "config.auto-messenger.send_on_join": "进入服务器时发送",
-  "config.auto-messenger.send_on_join.desc": "进入服务器时立即发送一次消息列表中的所有内容",
-
+  "config.auto-messenger.enable_scheduled": "启用定时消息",
+  "config.auto-messenger.enable_scheduled.desc": "按设定间隔自动发送消息",
+  "config.auto-messenger.send_on_join": "加入时发送",
+  "config.auto-messenger.send_on_join.desc": "加入服务器时立即发送定时消息",
   "config.auto-messenger.send_interval": "发送间隔 (毫秒)",
-  "config.auto-messenger.send_interval.desc": "每次发送的间隔时间，单位毫秒 (1000ms = 1秒，建议最小5000ms)",
-
-  "config.auto-messenger.enable_loop": "启用循环发送",
-  "config.auto-messenger.enable_loop.desc": "到达间隔后重复发送消息列表（关闭则只发送一次）",
-
-  "config.auto-messenger.scheduled_list": "定时发送列表",
-  "config.auto-messenger.scheduled_list.desc": "间隔到达时一次性发送所有内容。格式: 内容|msg 或 内容|cmd。大量消息建议使用TXT导入",
-
-  "config.auto-messenger.enable_autoreply": "启用自动回复",
-  "config.auto-messenger.enable_autoreply.desc": "检测到关键词时自动回复指定内容",
-
-  "config.auto-messenger.trigger_keywords": "触发关键词列表",
-  "config.auto-messenger.trigger_keywords.desc": "收到包含列表中任一关键词的消息时触发自动回复（不区分大小写）",
-
-  "config.auto-messenger.reply_message": "回复消息内容",
-  "config.auto-messenger.reply_message.desc": "触发关键词后自动发送的消息内容（支持以/开头的指令）",
-
-  "config.auto-messenger.reply_cooldown": "回复冷却 (毫秒)",
-  "config.auto-messenger.reply_cooldown.desc": "两次自动回复之间的最小间隔，单位毫秒（防止刷屏）",
-
-  "config.auto-messenger.show_countdown": "显示倒计时",
-  "config.auto-messenger.show_countdown.desc": "在屏幕左下角显示下次发送的剩余时间（修改后需重启游戏）",
-
-  "hud.rss-automessage.countdown": "下次发送: %s",
-  "hud.rss-automessage.empty": "无定时消息",
+  "config.auto-messenger.send_interval.desc": "消息间隔时间（最小1000毫秒）",
+  "config.auto-messenger.enable_loop": "启用循环",
+  "config.auto-messenger.enable_loop.desc": "循环重复发送消息",
 
   "config.auto-messenger.random_send": "随机发送顺序",
-  "config.auto-messenger.random_send.desc": "开启后每次随机打乱发送顺序"
+  "config.auto-messenger.random_send.desc": "每次随机打乱消息顺序",
+
+  "config.auto-messenger.stats_group.name": "📋 消息统计（%s 条）",
+  "config.auto-messenger.show_all_messages": "⚠️ 显示全部消息（可能卡顿）",
+  "config.auto-messenger.show_all_messages.desc": "当前有 %s 条消息",
+  "config.auto-messenger.stats.info.all": "§7共 %s 条",
+  "config.auto-messenger.stats.info.limited": "§7共 %s 条（显示前100条）",
+  "config.auto-messenger.clear_list": "🗑️ 清空列表",
+
+  "config.auto-messenger.scheduled_list": "消息列表",
+  "config.auto-messenger.scheduled_list.desc": "定时消息列表（格式：消息|类型）",
+  "config.auto-messenger.message_entry.default": "新消息|msg",
+
+  "config.auto-messenger.file_operations": "📁 文件操作",
+  "config.auto-messenger.browse_file": "🗂️ 浏览选择TXT文件...",
+  "config.auto-messenger.quick_import": "📥 快速导入 messages.txt",
+  "config.auto-messenger.open_folder": "📂 打开配置文件夹",
+
+  "config.auto-messenger.enable_autoreply": "启用自动回复",
+  "config.auto-messenger.enable_autoreply.desc": "检测到关键词时自动回复",
+  "config.auto-messenger.trigger_keywords": "触发关键词",
+  "config.auto-messenger.trigger_keywords.desc": "触发自动回复的关键词",
+  "config.auto-messenger.keyword.default": "关键词",
+  "config.auto-messenger.reply_message": "回复消息",
+  "config.auto-messenger.reply_message.desc": "触发时发送的消息",
+  "config.auto-messenger.reply_cooldown": "回复冷却 (毫秒)",
+  "config.auto-messenger.reply_cooldown.desc": "自动回复的最小间隔时间",
+
+  "config.auto-messenger.show_countdown": "显示倒计时",
+  "config.auto-messenger.show_countdown.desc": "在HUD上显示下次发送倒计时（需要重启）",
+
+  "chat.auto-messenger.opening_dialog": "⏳ 正在打开系统文件对话框...",
+  "chat.auto-messenger.importing": "⏳ 正在导入: %s",
+  "chat.auto-messenger.import.success": "✓ %s",
+  "chat.auto-messenger.import.failed": "✗ %s",
+  "chat.auto-messenger.no_file_selected": "未选择文件",
+  "chat.auto-messenger.folder.opened": "✓ 已打开文件夹",
+  "chat.auto-messenger.folder.failed": "✗ 无法打开文件夹"
 }

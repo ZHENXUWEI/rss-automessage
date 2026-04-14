@@ -220,18 +220,34 @@ public class FileSelectScreen extends Screen {
             }
 
             String os = System.getProperty("os.name").toLowerCase();
+
             if (os.contains("win")) {
-                ProcessBuilder pb = new ProcessBuilder(
-                        "rundll32.exe",
-                        "url.dll,FileProtocolHandler",
-                        "file:///" + targetDir.toString().replace("\\", "/")
-                );
-                pb.start();
-            } else if (Desktop.isDesktopSupported()) {
-                Desktop.getDesktop().open(targetDir.toFile());
+                // 使用 explorer 直接打开，无需 rundll32
+                new ProcessBuilder("explorer.exe", targetDir.toString()).start();
+            } else if (os.contains("mac")) {
+                new ProcessBuilder("open", targetDir.toString()).start();
+            } else {
+                // Linux: 尝试多种方式
+                String[] commands = {"xdg-open", "nautilus", "dolphin", "thunar", "pcmanfm"};
+                boolean opened = false;
+                for (String cmd : commands) {
+                    try {
+                        new ProcessBuilder(cmd, targetDir.toString()).start();
+                        opened = true;
+                        break;
+                    } catch (Exception ignored) {}
+                }
+                if (!opened) {
+                    throw new RuntimeException("无法找到文件管理器");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
+            // 显示错误提示
+            Minecraft.getInstance().gui.getChat().addMessage(
+                    Component.literal("✗ 无法打开文件夹: " + e.getMessage())
+                            .withStyle(ChatFormatting.RED)
+            );
         }
     }
 
