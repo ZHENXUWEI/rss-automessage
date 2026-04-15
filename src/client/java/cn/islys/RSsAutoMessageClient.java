@@ -29,6 +29,9 @@ public class RSsAutoMessageClient implements ClientModInitializer {
     private int sendIndex = 0;
     private int sendTickDelay = 0;
 
+    // 停止标志 - 关键：用于立即停止发送
+    private volatile boolean stopRequested = false;
+
     @Override
     public void onInitializeClient() {
         instance = this;
@@ -65,6 +68,9 @@ public class RSsAutoMessageClient implements ClientModInitializer {
     private void onServerJoined() {
         AutoMessengerConfig config = AutoMessengerConfig.getInstance();
 
+        // 重置停止标志
+        stopRequested = false;
+
         if (config.sendOnJoin && config.enableScheduledMessages) {
             startBatchSend(config.getScheduledMessages());
         }
@@ -79,10 +85,7 @@ public class RSsAutoMessageClient implements ClientModInitializer {
     }
 
     private void onServerLeft() {
-        pendingMessages = null;
-        sendIndex = 0;
-        remainingMs = 0;
-        countdownHud.updateCountdown(0);
+        stopAllSending();
     }
 
     private void onClientTick(Minecraft client) {
@@ -90,8 +93,27 @@ public class RSsAutoMessageClient implements ClientModInitializer {
 
         AutoMessengerConfig config = AutoMessengerConfig.getInstance();
 
+        // 检查是否需要停止发送（功能被禁用）
+        if (!config.enableScheduledMessages) {
+            if (!stopRequested && pendingMessages != null) {
+                stopAllSending();
+            }
+            return;
+        } else {
+            // 功能重新启用时，重置停止标志
+            stopRequested = false;
+        }
+
         // 处理批量发送（每3tick发送一条，避免卡顿）
         if (pendingMessages != null && !pendingMessages.isEmpty()) {
+            // 检查停止请求
+            if (stopRequested) {
+                pendingMessages = null;
+                sendIndex = 0;
+                sendTickDelay = 0;
+                return;
+            }
+
             sendTickDelay++;
             if (sendTickDelay >= 3) { // 每3tick（约150ms）发送一条
                 sendTickDelay = 0;
@@ -100,7 +122,7 @@ public class RSsAutoMessageClient implements ClientModInitializer {
             return; // 发送期间不检查间隔
         }
 
-        if (!config.enableScheduledMessages || !config.enableLoop) return;
+        if (!config.enableLoop) return;
 
         // 计算剩余时间
         long now = System.currentTimeMillis();
@@ -122,6 +144,8 @@ public class RSsAutoMessageClient implements ClientModInitializer {
     // 开始批量发送
     private void startBatchSend(List<MessageEntry> messages) {
         if (messages == null || messages.isEmpty()) return;
+        if (stopRequested) return; // 如果已请求停止，则不开始
+
         this.pendingMessages = messages;
         this.sendIndex = 0;
         this.sendTickDelay = 0;
@@ -129,6 +153,13 @@ public class RSsAutoMessageClient implements ClientModInitializer {
 
     // 发送下一条待处理的消息
     private void sendNextPendingMessage(Minecraft client) {
+        // 检查停止请求
+        if (stopRequested) {
+            pendingMessages = null;
+            sendIndex = 0;
+            return;
+        }
+
         if (pendingMessages == null || sendIndex >= pendingMessages.size()) {
             pendingMessages = null;
             sendIndex = 0;
@@ -155,7 +186,7 @@ public class RSsAutoMessageClient implements ClientModInitializer {
         }
     }
 
-//    实现随机发送
+    // 实现随机发送
     private void sendAllScheduledMessages() {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
@@ -172,6 +203,31 @@ public class RSsAutoMessageClient implements ClientModInitializer {
         this.pendingMessages = messages;
         this.sendIndex = 0;
         this.sendTickDelay = 0;
+    }
+
+    /**
+     * 公共方法：停止所有发送
+     * 当关闭功能时调用，立即停止所有待发送消息
+     */
+    public void stopAllSending() {
+        stopRequested = true;
+        pendingMessages = null;
+        sendIndex = 0;
+        sendTickDelay = 0;
+        remainingMs = 0;
+        countdownHud.updateCountdown(0);
+        System.out.println("[AutoMessage] All sending stopped");
+    }
+
+    /**
+     * 重置停止标志（当功能重新启用时调用）
+     */
+    public void resetStopFlag() {
+        stopRequested = false;
+    }
+
+    public boolean isStopRequested() {
+        return stopRequested;
     }
 
     public void sendMessage(String message) {

@@ -1,5 +1,6 @@
 package cn.islys.config;
 
+import cn.islys.RSsAutoMessageClient;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
@@ -77,6 +78,13 @@ public class AutoMessengerConfig {
 
     public static void save() {
         HANDLER.save();
+        // 如果禁用功能，通知客户端停止发送
+        if (!getInstance().enableScheduledMessages) {
+            RSsAutoMessageClient client = RSsAutoMessageClient.getInstance();
+            if (client != null) {
+                client.stopAllSending();
+            }
+        }
     }
 
     // 解析消息条目

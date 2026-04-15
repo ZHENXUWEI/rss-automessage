@@ -9,53 +9,56 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class FileDialogUtil {
 
-    // 静态初始化块：强制启用 AWT 图形模式
-    static {
-        try {
-            // 强制设置 AWT 为非 Headless 模式
-            System.setProperty("java.awt.headless", "false");
-
-            // 初始化图形环境
-            if (GraphicsEnvironment.isHeadless()) {
-                System.err.println("[AutoMessage] Warning: GraphicsEnvironment is headless!");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     /**
-     * 主方法：尝试使用 AWT FileDialog，失败则使用 Swing
+     * 显示文件选择对话框（强制修复 Headless 模式）
      */
     public static Optional<Path> showOpenDialog() {
-        // 确保在主线程或 EDT 中运行
-        if (java.awt.EventQueue.isDispatchThread()) {
-            return showDialogInternal();
+        // 强制重置 headless 属性（必须在任何 AWT 类加载之前）
+        System.setProperty("java.awt.headless", "false");
+
+        // 使用 CountDownLatch 确保同步等待
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<Optional<Path>> result = new AtomicReference<>(Optional.empty());
+
+        // 在新线程中运行，避免阻塞 Minecraft 主线程
+        Thread dialogThread = new Thread(() -> {
+            try {
+                // 再次强制设置
+                System.setProperty("java.awt.headless", "false");
+
+                // 尝试初始化图形环境
+                GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+
+                Optional<Path> path = showDialogInternal();
+                result.set(path);
+            } catch (Exception e) {
+                System.err.println("[AutoMessage] Dialog error: " + e.getMessage());
+                e.printStackTrace();
+            } finally {
+                latch.countDown();
+            }
+        }, "FileDialog-Thread");
+
+        // 设置为守护线程
+        dialogThread.setDaemon(true);
+        dialogThread.start();
+
+        // 等待对话框关闭（最多等待60秒）
+        try {
+            latch.await(60, java.util.concurrent.TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
 
-        // 使用 invokeAndWait 确保在 EDT 中同步执行
-        final Optional<Path>[] result = new Optional[1];
-        try {
-            java.awt.EventQueue.invokeAndWait(() -> {
-                result[0] = showDialogInternal();
-            });
-            return result[0];
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Optional.empty();
-        }
+        return result.get();
     }
 
     private static Optional<Path> showDialogInternal() {
-        // 再次检查并尝试修复 Headless 模式
-        if (GraphicsEnvironment.isHeadless()) {
-            System.err.println("[AutoMessage] Cannot show dialog: Headless mode");
-            return Optional.empty();
-        }
-
         // 首先尝试 AWT FileDialog
         try {
             return showAWTDialog();
@@ -73,17 +76,13 @@ public class FileDialogUtil {
         return Optional.empty();
     }
 
-    /**
-     * AWT FileDialog - 系统原生外观
-     */
     private static Optional<Path> showAWTDialog() {
-        // 使用 Minecraft 窗口作为父组件（如果可能）
         Frame frame = new Frame();
         frame.setUndecorated(true);
-        frame.setAlwaysOnTop(true); // 确保在最前
+        frame.setAlwaysOnTop(true);
 
         try {
-            FileDialog dialog = new FileDialog(frame, "选择 TXT 文件", FileDialog.LOAD);
+            FileDialog dialog = new FileDialog(frame, "Select TXT File", FileDialog.LOAD);
 
             Path configDir = cn.islys.util.MessageImporter.getConfigDir();
             dialog.setDirectory(configDir.toString());
@@ -104,22 +103,18 @@ public class FileDialogUtil {
         return Optional.empty();
     }
 
-    /**
-     * Swing JFileChooser - 备用方案
-     */
     private static Optional<Path> showSwingDialog() {
-        // 设置系统外观
         try {
             javax.swing.UIManager.setLookAndFeel(
                     javax.swing.UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {}
 
         JFileChooser chooser = new JFileChooser();
-        chooser.setFileFilter(new FileNameExtensionFilter("TXT 文件 (*.txt)", "txt"));
+        chooser.setFileFilter(new FileNameExtensionFilter("TXT Files (*.txt)", "txt"));
 
         Path configDir = cn.islys.util.MessageImporter.getConfigDir();
         chooser.setCurrentDirectory(configDir.toFile());
-        chooser.setDialogTitle("选择 TXT 文件");
+        chooser.setDialogTitle("Select TXT File");
 
         int result = chooser.showOpenDialog(null);
 
