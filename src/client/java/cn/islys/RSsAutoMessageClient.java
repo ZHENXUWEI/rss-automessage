@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.Minecraft;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RSsAutoMessageClient implements ClientModInitializer {
@@ -72,7 +73,10 @@ public class RSsAutoMessageClient implements ClientModInitializer {
         stopRequested = false;
 
         if (config.sendOnJoin && config.enableScheduledMessages) {
-            startBatchSend(config.getScheduledMessages());
+//            不随机
+//            startBatchSend(config.getScheduledMessages());
+//            随机
+            sendAllScheduledMessages();
         }
 
         if (config.enableScheduledMessages) {
@@ -134,7 +138,7 @@ public class RSsAutoMessageClient implements ClientModInitializer {
 
         // 时间到了，开始批量发送
         if (remainingMs <= 0) {
-            startBatchSend(config.getScheduledMessages());
+            sendAllScheduledMessages();
             lastSendTime = now;
             remainingMs = config.sendIntervalMs;
             AutoMessengerConfig.save();
@@ -194,13 +198,16 @@ public class RSsAutoMessageClient implements ClientModInitializer {
         AutoMessengerConfig config = AutoMessengerConfig.getInstance();
         List<MessageEntry> messages = config.getScheduledMessages();
 
-        // 如果开启随机，打乱顺序
-        if (config.randomSend && messages.size() > 1) {
-            java.util.Collections.shuffle(messages);
+        // 创建副本，不破坏原列表
+        List<MessageEntry> sendList = new ArrayList<>(messages);
+
+        // 只打乱本次发送的副本，原配置保持不变
+        if (config.randomSend && sendList.size() > 1) {
+            java.util.Collections.shuffle(sendList);
         }
 
-        // 批量发送（每3tick一条）
-        this.pendingMessages = messages;
+        // 发送打乱后的副本
+        this.pendingMessages = sendList;
         this.sendIndex = 0;
         this.sendTickDelay = 0;
     }

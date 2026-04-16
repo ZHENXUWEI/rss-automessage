@@ -2,6 +2,7 @@ package cn.islys.config;
 
 import cn.islys.RSsAutoMessageClient;
 import cn.islys.gui.FileDialogUtil;
+import cn.islys.util.FileChooserUtil;
 import cn.islys.util.MessageImporter;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
@@ -172,7 +173,7 @@ public class ModConfigScreen {
                     client.gui.getChat().addMessage(Component.translatable("chat.auto-messenger.opening_dialog").withStyle(ChatFormatting.YELLOW));
 
                     new Thread(() -> {
-                        Optional<Path> selected = FileDialogUtil.showOpenDialog();
+                        Optional<Path> selected = FileChooserUtil.openTxtFileChooser();
                         client.execute(() -> {
                             selected.ifPresentOrElse(path -> {
                                 client.gui.getChat().addMessage(Component.translatable("chat.auto-messenger.importing", path.getFileName()).withStyle(ChatFormatting.YELLOW));

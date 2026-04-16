@@ -1,0 +1,56 @@
+1.21:
+
+|||
+dependencies {
+    // 其他依赖...
+
+    // 让 1.21 支持原生文件选择窗口
+    include "org.lwjgl:lwjgl-tinyfd:3.3.2:natives-windows"
+    modImplementation "org.lwjgl:lwjgl-tinyfd:3.3.2"
+}
+
+
+||| new util:
+package cn.islys.utils;
+
+import net.minecraft.client.Minecraft;
+import org.lwjgl.util.tinyfd.TinyFileDialogs;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.Optional;
+
+public class FileChooserUtil {
+
+    // 电脑原生文件选择窗口 → 只显示 .txt 文件
+    public static Optional<Path> openTxtFileChooser() {
+        Minecraft mc = Minecraft.getInstance();
+
+        // 必须在主线程运行
+        mc.execute(() -> {}).join();
+
+        // 初始目录（游戏目录）
+        File gameDir = mc.gameDirectory;
+
+        // 选择 TXT 文件
+        String path = TinyFileDialogs.tinyfd_openFileDialog(
+            "选择Txt文件",
+            gameDir.getAbsolutePath(),
+            "文本文件|*.txt|所有文件|*.*",
+            null,
+            false
+        );
+
+        if (path == null) return Optional.empty();
+        return Optional.of(Path.of(path));
+    }
+}
+
+✅ 你调用的地方只需要写：
+java
+运行
+Optional<Path> file = FileChooserUtil.openTxtFileChooser();
+
+file.ifPresent(path -> {
+    // 这里处理你选中的txt文件
+    System.out.println("选中文件：" + path);
+});
