@@ -1,5 +1,6 @@
 package cn.islys.config;
 
+import cn.islys.RSsAutoMessageClient;
 import cn.islys.gui.FileDialogUtil;
 import cn.islys.util.MessageImporter;
 import dev.isxander.yacl3.api.*;
@@ -44,7 +45,16 @@ public class ModConfigScreen {
                 Component.translatable("config.auto-messenger.enable_scheduled.desc"),
                 defaults.enableScheduledMessages,
                 () -> config.enableScheduledMessages,
-                value -> config.enableScheduledMessages = value
+                value -> {
+                    config.enableScheduledMessages = value;
+                    // 如果禁用，立即停止
+                    if (!value) {
+                        RSsAutoMessageClient client = RSsAutoMessageClient.getInstance();
+                        if (client != null) {
+                            client.stopAllSending();
+                        }
+                    }
+                }
         ));
 
         scheduledCat.option(createBoolOption(

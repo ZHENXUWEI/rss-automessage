@@ -1,7 +1,9 @@
 package cn.islys.gui;
 
 import javax.swing.JFileChooser;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.Dialog;
 import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.GraphicsEnvironment;
@@ -9,120 +11,118 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public class FileDialogUtil {
 
     /**
-     * 显示文件选择对话框（强制修复 Headless 模式）
+     * 修复版：使用 CompletableFuture 异步处理，避免阻塞
      */
     public static Optional<Path> showOpenDialog() {
-        // 强制重置 headless 属性（必须在任何 AWT 类加载之前）
+        // 强制重置 headless
         System.setProperty("java.awt.headless", "false");
 
-        // 使用 CountDownLatch 确保同步等待
-        CountDownLatch latch = new CountDownLatch(1);
-        AtomicReference<Optional<Path>> result = new AtomicReference<>(Optional.empty());
+        CompletableFuture<Optional<Path>> future = new CompletableFuture<>();
 
-        // 在新线程中运行，避免阻塞 Minecraft 主线程
-        Thread dialogThread = new Thread(() -> {
+        // 在全新线程中初始化 AWT
+        Thread awtThread = new Thread(() -> {
             try {
-                // 再次强制设置
+                // 确保在新线程中初始化
                 System.setProperty("java.awt.headless", "false");
 
-                // 尝试初始化图形环境
-                GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                // 初始化图形环境
+                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 
-                Optional<Path> path = showDialogInternal();
-                result.set(path);
+                Optional<Path> result = showAWTDialog();
+                future.complete(result);
+
             } catch (Exception e) {
-                System.err.println("[AutoMessage] Dialog error: " + e.getMessage());
-                e.printStackTrace();
-            } finally {
-                latch.countDown();
+                System.err.println("[AutoMessage] AWT failed: " + e.getMessage());
+                // 尝试 Swing
+                try {
+                    Optional<Path> result = showSwingDialog();
+                    future.complete(result);
+                } catch (Exception e2) {
+                    future.complete(Optional.empty());
+                }
             }
-        }, "FileDialog-Thread");
+        }, "AWT-Dialog-Thread");
 
-        // 设置为守护线程
-        dialogThread.setDaemon(true);
-        dialogThread.start();
+        awtThread.setDaemon(true);
+        awtThread.start();
 
-        // 等待对话框关闭（最多等待60秒）
+        // 等待结果（带超时）
         try {
-            latch.await(60, java.util.concurrent.TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
-        return result.get();
-    }
-
-    private static Optional<Path> showDialogInternal() {
-        // 首先尝试 AWT FileDialog
-        try {
-            return showAWTDialog();
+            return future.get(30, TimeUnit.SECONDS);
         } catch (Exception e) {
-            System.out.println("[AutoMessage] AWT dialog failed: " + e.getMessage());
+            future.cancel(true);
+            return Optional.empty();
         }
-
-        // 备用：Swing JFileChooser
-        try {
-            return showSwingDialog();
-        } catch (Exception e) {
-            System.err.println("[AutoMessage] Swing dialog also failed: " + e.getMessage());
-        }
-
-        return Optional.empty();
     }
 
     private static Optional<Path> showAWTDialog() {
-        Frame frame = new Frame();
-        frame.setUndecorated(true);
-        frame.setAlwaysOnTop(true);
+        // 使用 Dialog 而不是 Frame，避免窗口残留
+        Dialog dialogHolder = new Dialog((Frame) null, "File Dialog Holder");
+        dialogHolder.setUndecorated(true);
+        dialogHolder.setModal(false);
 
         try {
-            FileDialog dialog = new FileDialog(frame, "Select TXT File", FileDialog.LOAD);
+            FileDialog fileDialog = new FileDialog(dialogHolder, "选择 TXT 文件", FileDialog.LOAD);
+            fileDialog.setModal(true); // 模态对话框
 
             Path configDir = cn.islys.util.MessageImporter.getConfigDir();
-            dialog.setDirectory(configDir.toString());
-            dialog.setFile("*.txt");
+            fileDialog.setDirectory(configDir.toString());
+            fileDialog.setFile("*.txt");
 
-            dialog.setVisible(true);
+            fileDialog.setVisible(true);
 
-            String file = dialog.getFile();
-            String dir = dialog.getDirectory();
+            String file = fileDialog.getFile();
+            String dir = fileDialog.getDirectory();
+
+            fileDialog.dispose();
 
             if (file != null) {
                 return Optional.of(Paths.get(dir, file));
             }
         } finally {
-            frame.dispose();
+            dialogHolder.dispose();
+            // 强制垃圾回收，释放资源
+            System.gc();
         }
 
         return Optional.empty();
     }
 
     private static Optional<Path> showSwingDialog() {
+        // 在 EDT 中运行
+        final Optional<Path>[] result = new Optional[1];
+
         try {
-            javax.swing.UIManager.setLookAndFeel(
-                    javax.swing.UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {}
+            SwingUtilities.invokeAndWait(() -> {
+                JFileChooser chooser = new JFileChooser();
+                chooser.setFileFilter(new FileNameExtensionFilter("TXT 文件 (*.txt)", "txt"));
 
-        JFileChooser chooser = new JFileChooser();
-        chooser.setFileFilter(new FileNameExtensionFilter("TXT Files (*.txt)", "txt"));
+                Path configDir = cn.islys.util.MessageImporter.getConfigDir();
+                chooser.setCurrentDirectory(configDir.toFile());
+                chooser.setDialogTitle("选择 TXT 文件");
 
-        Path configDir = cn.islys.util.MessageImporter.getConfigDir();
-        chooser.setCurrentDirectory(configDir.toFile());
-        chooser.setDialogTitle("Select TXT File");
+                int ret = chooser.showOpenDialog(null);
 
-        int result = chooser.showOpenDialog(null);
-
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selected = chooser.getSelectedFile();
-            return Optional.of(selected.toPath());
+                if (ret == JFileChooser.APPROVE_OPTION) {
+                    File selected = chooser.getSelectedFile();
+                    result[0] = Optional.of(selected.toPath());
+                } else {
+                    result[0] = Optional.empty();
+                }
+            });
+        } catch (Exception e) {
+            result[0] = Optional.empty();
         }
 
-        return Optional.empty();
+        // 强制清理
+        System.gc();
+
+        return result[0];
     }
 }

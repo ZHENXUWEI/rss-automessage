@@ -79,12 +79,12 @@ public class AutoMessengerConfig {
     public static void save() {
         HANDLER.save();
         // 如果禁用功能，通知客户端停止发送
-        if (!getInstance().enableScheduledMessages) {
-            RSsAutoMessageClient client = RSsAutoMessageClient.getInstance();
-            if (client != null) {
-                client.stopAllSending();
-            }
-        }
+//        if (!getInstance().enableScheduledMessages) {
+//            RSsAutoMessageClient client = RSsAutoMessageClient.getInstance();
+//            if (client != null) {
+//                client.stopAllSending();
+//            }
+//        }
     }
 
     // 解析消息条目
