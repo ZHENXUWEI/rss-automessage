@@ -74,6 +74,13 @@ public class AutoMessengerConfig {
 
     public static void load() {
         HANDLER.load();
+
+        AutoMessengerConfig config = getInstance();
+        if (config.showAllMessages) {
+            config.showAllMessages = false;
+            save();  // 立即保存，确保下次启动也是关闭状态
+            System.out.println("[AutoMessage] 已自动关闭「显示全部消息」以防止卡顿");
+        }
     }
 
     public static void save() {

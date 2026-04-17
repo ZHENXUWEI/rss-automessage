@@ -51,6 +51,10 @@
   "chat.auto-messenger.import.success": "✓ %s",
   "chat.auto-messenger.import.failed": "✗ %s",
   "chat.auto-messenger.no_file_selected": "No file selected",
-  "chat.auto-messenger.folder.opened": "✓ Folder opened",
-  "chat.auto-messenger.folder.failed": "✗ Failed to open folder"
+  "chat.auto-messenger.folder.opened": "✓ Folder opened, please place your TXT file and name it messages.txt",
+  "chat.auto-messenger.folder.failed": "✗ Failed to open folder",
+
+  "config.auto-messenger.import_notice.line1": "§6※ Due to platform restrictions, system file picker is unavailable",
+  "config.auto-messenger.import_notice.line2": "§7Please place your TXT file in the folder below,",
+  "config.auto-messenger.import_notice.line3": "§7rename it to messages.txt and click 'Quick Import'"
 }
