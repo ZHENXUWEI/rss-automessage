@@ -51,6 +51,10 @@
   "chat.auto-messenger.import.success": "✓ %s",
   "chat.auto-messenger.import.failed": "✗ %s",
   "chat.auto-messenger.no_file_selected": "未选择文件",
-  "chat.auto-messenger.folder.opened": "✓ 已打开文件夹",
-  "chat.auto-messenger.folder.failed": "✗ 无法打开文件夹"
+  "chat.auto-messenger.folder.opened": "✓ 已打开文件夹，请将 TXT 文件放入并命名为 messages.txt",
+  "chat.auto-messenger.folder.failed": "✗ 无法打开文件夹",
+
+  "config.auto-messenger.import_notice.line1": "§6※ 由于平台审核限制，无法使用系统文件选择器",
+  "config.auto-messenger.import_notice.line2": "§7请将需要导入的TXT文件放入下方文件夹，",
+  "config.auto-messenger.import_notice.line3": "§7重命名为 messages.txt 后点击「快速导入」"
 }
