@@ -27,11 +27,11 @@
   },
   "depends": {
     "fabricloader": ">=0.16.13",
-    "minecraft": "=1.21.3",
+    "minecraft": "=1.21.2",
     "java": ">=21",
     "fabric-api": "*",
     "modmenu": ">=12.0.0",
-    "yet_another_config_lib_v3": ">=3.6.4"
+    "yet_another_config_lib_v3": ">=3.6.1 <=3.6.6"
   },
   "suggests": {
 
