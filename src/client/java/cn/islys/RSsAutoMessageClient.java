@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.Minecraft;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RSsAutoMessageClient implements ClientModInitializer {
@@ -72,7 +73,7 @@ public class RSsAutoMessageClient implements ClientModInitializer {
         stopRequested = false;
 
         if (config.sendOnJoin && config.enableScheduledMessages) {
-            startBatchSend(config.getScheduledMessages());
+            sendAllScheduledMessages();
         }
 
         if (config.enableScheduledMessages) {
@@ -134,17 +135,18 @@ public class RSsAutoMessageClient implements ClientModInitializer {
 
         // 时间到了，开始批量发送
         if (remainingMs <= 0) {
-            startBatchSend(config.getScheduledMessages());
+            // ✅ 改用 sendAllScheduledMessages 支持随机发送
+            sendAllScheduledMessages();
             lastSendTime = now;
             remainingMs = config.sendIntervalMs;
             AutoMessengerConfig.save();
         }
     }
 
-    // 开始批量发送
+    // 开始批量发送（原方法保留，供内部使用）
     private void startBatchSend(List<MessageEntry> messages) {
         if (messages == null || messages.isEmpty()) return;
-        if (stopRequested) return; // 如果已请求停止，则不开始
+        if (stopRequested) return;
 
         this.pendingMessages = messages;
         this.sendIndex = 0;
@@ -153,7 +155,6 @@ public class RSsAutoMessageClient implements ClientModInitializer {
 
     // 发送下一条待处理的消息
     private void sendNextPendingMessage(Minecraft client) {
-        // 检查停止请求
         if (stopRequested) {
             pendingMessages = null;
             sendIndex = 0;
@@ -179,14 +180,12 @@ public class RSsAutoMessageClient implements ClientModInitializer {
 
         sendIndex++;
 
-        // 全部发送完毕
         if (sendIndex >= pendingMessages.size()) {
             pendingMessages = null;
             sendIndex = 0;
         }
     }
 
-    // 实现随机发送
     private void sendAllScheduledMessages() {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) return;
@@ -194,20 +193,24 @@ public class RSsAutoMessageClient implements ClientModInitializer {
         AutoMessengerConfig config = AutoMessengerConfig.getInstance();
         List<MessageEntry> messages = config.getScheduledMessages();
 
-        // 如果开启随机，打乱顺序
-        if (config.randomSend && messages.size() > 1) {
-            java.util.Collections.shuffle(messages);
+        if (messages == null || messages.isEmpty()) return;
+
+        // 创建副本，不破坏原列表
+        List<MessageEntry> sendList = new ArrayList<>(messages);
+
+        // 只打乱本次发送的副本，原配置保持不变
+        if (config.randomSend && sendList.size() > 1) {
+            java.util.Collections.shuffle(sendList);
         }
 
-        // 批量发送（每3tick一条）
-        this.pendingMessages = messages;
+        // 发送打乱后的副本
+        this.pendingMessages = sendList;
         this.sendIndex = 0;
         this.sendTickDelay = 0;
     }
 
     /**
      * 公共方法：停止所有发送
-     * 当关闭功能时调用，立即停止所有待发送消息
      */
     public void stopAllSending() {
         stopRequested = true;
@@ -219,9 +222,6 @@ public class RSsAutoMessageClient implements ClientModInitializer {
         System.out.println("[AutoMessage] All sending stopped");
     }
 
-    /**
-     * 重置停止标志（当功能重新启用时调用）
-     */
     public void resetStopFlag() {
         stopRequested = false;
     }
