@@ -21,16 +21,13 @@ public class RSsAutoMessageClient implements ClientModInitializer {
     private final AutoReplyHandler autoReply = new AutoReplyHandler();
     private final CountdownHud countdownHud = new CountdownHud();
 
-    // 定时器
     private long lastSendTime = 0;
     private int remainingMs = 0;
 
-    // 批量发送状态
     private List<MessageEntry> pendingMessages = null;
     private int sendIndex = 0;
     private int sendTickDelay = 0;
 
-    // 停止标志 - 关键：用于立即停止发送
     private volatile boolean stopRequested = false;
 
     @Override
@@ -47,10 +44,9 @@ public class RSsAutoMessageClient implements ClientModInitializer {
             onServerLeft();
         });
 
-        ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
-            if (!overlay) {
-                autoReply.onChatMessage(message.getString());
-            }
+        // 26.1 中 ClientReceiveMessageEvents.GAME 改为 CHAT
+        ClientReceiveMessageEvents.CHAT.register((message, signedMessage, sender, params, receptionTimestamp) -> {
+            autoReply.onChatMessage(message.getString());
         });
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
@@ -59,17 +55,14 @@ public class RSsAutoMessageClient implements ClientModInitializer {
 
         countdownHud.register();
 
-        // 注册命令
         AutoMessageCommand.register();
 
-        // 启动时检查并创建示例文件
         MessageImporter.createExampleFile();
     }
 
     private void onServerJoined() {
         AutoMessengerConfig config = AutoMessengerConfig.getInstance();
 
-        // 重置停止标志
         stopRequested = false;
 
         if (config.sendOnJoin && config.enableScheduledMessages) {
@@ -94,20 +87,16 @@ public class RSsAutoMessageClient implements ClientModInitializer {
 
         AutoMessengerConfig config = AutoMessengerConfig.getInstance();
 
-        // 检查是否需要停止发送（功能被禁用）
         if (!config.enableScheduledMessages) {
             if (!stopRequested && pendingMessages != null) {
                 stopAllSending();
             }
             return;
         } else {
-            // 功能重新启用时，重置停止标志
             stopRequested = false;
         }
 
-        // 处理批量发送（每3tick发送一条，避免卡顿）
         if (pendingMessages != null && !pendingMessages.isEmpty()) {
-            // 检查停止请求
             if (stopRequested) {
                 pendingMessages = null;
                 sendIndex = 0;
@@ -116,26 +105,22 @@ public class RSsAutoMessageClient implements ClientModInitializer {
             }
 
             sendTickDelay++;
-            if (sendTickDelay >= 3) { // 每3tick（约150ms）发送一条
+            if (sendTickDelay >= 3) {
                 sendTickDelay = 0;
                 sendNextPendingMessage(client);
             }
-            return; // 发送期间不检查间隔
+            return;
         }
 
         if (!config.enableLoop) return;
 
-        // 计算剩余时间
         long now = System.currentTimeMillis();
         int elapsed = (int) (now - lastSendTime);
         remainingMs = Math.max(0, config.sendIntervalMs - elapsed);
 
-        // 更新倒计时显示
         countdownHud.updateCountdown(remainingMs);
 
-        // 时间到了，开始批量发送
         if (remainingMs <= 0) {
-            // ✅ 改用 sendAllScheduledMessages 支持随机发送
             sendAllScheduledMessages();
             lastSendTime = now;
             remainingMs = config.sendIntervalMs;
@@ -143,17 +128,6 @@ public class RSsAutoMessageClient implements ClientModInitializer {
         }
     }
 
-    // 开始批量发送（原方法保留，供内部使用）
-    private void startBatchSend(List<MessageEntry> messages) {
-        if (messages == null || messages.isEmpty()) return;
-        if (stopRequested) return;
-
-        this.pendingMessages = messages;
-        this.sendIndex = 0;
-        this.sendTickDelay = 0;
-    }
-
-    // 发送下一条待处理的消息
     private void sendNextPendingMessage(Minecraft client) {
         if (stopRequested) {
             pendingMessages = null;
@@ -195,23 +169,17 @@ public class RSsAutoMessageClient implements ClientModInitializer {
 
         if (messages == null || messages.isEmpty()) return;
 
-        // 创建副本，不破坏原列表
         List<MessageEntry> sendList = new ArrayList<>(messages);
 
-        // 只打乱本次发送的副本，原配置保持不变
         if (config.randomSend && sendList.size() > 1) {
             java.util.Collections.shuffle(sendList);
         }
 
-        // 发送打乱后的副本
         this.pendingMessages = sendList;
         this.sendIndex = 0;
         this.sendTickDelay = 0;
     }
 
-    /**
-     * 公共方法：停止所有发送
-     */
     public void stopAllSending() {
         stopRequested = true;
         pendingMessages = null;

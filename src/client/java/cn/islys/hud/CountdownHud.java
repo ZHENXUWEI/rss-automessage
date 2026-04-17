@@ -1,29 +1,40 @@
 package cn.islys.hud;
 
 import cn.islys.config.AutoMessengerConfig;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 
 public class CountdownHud {
     private int remainingMs = 0;
     private int lastLoggedSecond = -1;
-    private static final int COLOR_NORMAL = 0xFFFFFF;   // 纯白色，最醒目
-    private static final int COLOR_WARNING = 0xFFAA00;  // 橙色
-    private static final int COLOR_URGENT = 0xFF0000;   // 纯红色
+    private static final int COLOR_NORMAL = 0xFFFFFFFF;
+    private static final int COLOR_WARNING = 0xFFFFAA00;
+    private static final int COLOR_URGENT = 0xFFFF0000;
+
+    // 原版聊天 HUD 元素的 ID
+    private static final Identifier CHAT_HUD_ID = Identifier.withDefaultNamespace("chat");
+    private static final Identifier COUNTDOWN_HUD_ID = Identifier.fromNamespaceAndPath("rss-automessage", "countdown");
 
     public void register() {
-        HudRenderCallback.EVENT.register((guiGraphics, tickDelta) -> {
-            render(guiGraphics);
-        });
+        // ✅ 26.1 正确的 HUD API
+        HudElementRegistry.attachElementBefore(
+                CHAT_HUD_ID,
+                COUNTDOWN_HUD_ID,
+                (GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) -> {
+                    render(graphics);
+                }
+        );
     }
 
     public void updateCountdown(int ms) {
         this.remainingMs = ms;
     }
 
-    private void render(GuiGraphics guiGraphics) {
+    private void render(GuiGraphicsExtractor graphics) {
         AutoMessengerConfig config = AutoMessengerConfig.getInstance();
 
         if (!config.showCountdown) return;
@@ -34,12 +45,10 @@ public class CountdownHud {
         if (client.player == null || client.options.hideGui) return;
 
         Font font = client.font;
-        if (font == null) return;  // 安全检查
+        if (font == null) return;
 
         int screenHeight = client.getWindow().getGuiScaledHeight();
-        int screenWidth = client.getWindow().getGuiScaledWidth();
 
-        // 硬编码ASCII字符，避免编码问题
         String timeStr = formatTime(remainingMs);
         String text = "Next: " + timeStr;
 
@@ -48,23 +57,21 @@ public class CountdownHud {
         else if (remainingMs <= 10000) color = COLOR_WARNING;
         else color = COLOR_NORMAL;
 
-        // 紧贴左下角
         int x = 2;
-        int y = screenHeight - 11;  // 微调，对齐像素
+        int y = screenHeight - 11;
 
         int textWidth = font.width(text);
-        int textHeight = 8;  // 字体高度
+        int textHeight = font.lineHeight;
 
-        // 绘制背景（先画背景，再画文字）
-        guiGraphics.fill(x - 2, y - 2, x + textWidth + 4, y + textHeight + 2, 0x44000000);
+        // ✅ fill(x0, y0, x1, y1, color)
+        graphics.fill(x - 2, y - 2, x + textWidth + 4, y + textHeight + 2, 0x44000000);
 
-        // 绘制文字（强制白色，带阴影）
-        guiGraphics.drawString(font, text, x, y, 0xFFFFFFFF, true);
+        // ✅ text(font, text, x, y, color, shadow)
+        graphics.text(font, text, x, y, color, true);
 
-        // 每秒日志一次
         int currentSecond = remainingMs / 1000;
         if (currentSecond != lastLoggedSecond) {
-            System.out.println("[AutoMessage] Countdown: " + text + " (Color: " + Integer.toHexString(color) + ")");
+            System.out.println("[AutoMessage] Countdown: " + text);
             lastLoggedSecond = currentSecond;
         }
     }
@@ -76,7 +83,6 @@ public class CountdownHud {
         int minutes = (totalSeconds / 60) % 60;
         int hours = totalSeconds / 3600;
 
-        // 纯ASCII格式
         if (hours > 0) {
             return String.format("%d:%02d:%02d", hours, minutes, seconds);
         }
