@@ -13,7 +13,7 @@ import java.util.List;
 public class AutoMessengerConfig {
     public static final ConfigClassHandler<AutoMessengerConfig> HANDLER =
             ConfigClassHandler.createBuilder(AutoMessengerConfig.class)
-                    .id(ResourceLocation.fromNamespaceAndPath("rss-automessage", "config"))
+                    .id(new ResourceLocation("rss-automessage", "config"))
                     .serializer(config -> GsonConfigSerializerBuilder.create(config)
                             .setPath(FabricLoader.getInstance().getConfigDir().resolve("rss-automessage.json"))
                             .build())
@@ -73,7 +73,7 @@ public class AutoMessengerConfig {
     }
 
     public static void load() {
-        HANDLER.load();
+        HANDLER.serializer().load();
 
         AutoMessengerConfig config = getInstance();
         if (config.showAllMessages) {
@@ -84,14 +84,7 @@ public class AutoMessengerConfig {
     }
 
     public static void save() {
-        HANDLER.save();
-        // 如果禁用功能，通知客户端停止发送
-//        if (!getInstance().enableScheduledMessages) {
-//            RSsAutoMessageClient client = RSsAutoMessageClient.getInstance();
-//            if (client != null) {
-//                client.stopAllSending();
-//            }
-//        }
+        HANDLER.serializer().save();
     }
 
     // 解析消息条目
