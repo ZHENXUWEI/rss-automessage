@@ -55,7 +55,7 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     // YACL - 配置文件与GUI
-    modImplementation("dev.isxander.yacl:yet-another-config-lib-fabric:${project.yacl_version}")
+    modImplementation("dev.isxander:yet-another-config-lib:${project.yacl_version}")
     // Mod Menu - 配置入口
     modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 
@@ -63,17 +63,17 @@ dependencies {
 //    include "org.lwjgl:lwjgl-tinyfd:3.3.2:natives-windows"
 //    modImplementation "org.lwjgl:lwjgl-tinyfd:3.3.2"
 
-    configurations.configureEach {
-        resolutionStrategy {
-            // 强制将 TwelveMonkeys 的 SNAPSHOT 依赖替换为稳定版本
-            force 'com.twelvemonkeys.imageio:imageio-core:3.10.0'
-            force 'com.twelvemonkeys.imageio:imageio-webp:3.10.0'
-            force 'com.twelvemonkeys.imageio:imageio-metadata:3.10.0'
-            force 'com.twelvemonkeys.common:common-lang:3.10.0'
-            force 'com.twelvemonkeys.common:common-io:3.10.0'
-            force 'com.twelvemonkeys.common:common-image:3.10.0'
-        }
-    }
+//    configurations.configureEach {
+//        resolutionStrategy {
+//            // 强制将 TwelveMonkeys 的 SNAPSHOT 依赖替换为稳定版本
+//            force 'com.twelvemonkeys.imageio:imageio-core:3.10.0'
+//            force 'com.twelvemonkeys.imageio:imageio-webp:3.10.0'
+//            force 'com.twelvemonkeys.imageio:imageio-metadata:3.10.0'
+//            force 'com.twelvemonkeys.common:common-lang:3.10.0'
+//            force 'com.twelvemonkeys.common:common-io:3.10.0'
+//            force 'com.twelvemonkeys.common:common-image:3.10.0'
+//        }
+//    }
 }
 
 processResources {
