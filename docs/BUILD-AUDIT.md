@@ -1,0 +1,18 @@
+# Dependency audit — branch 1.20.2
+
+| Component | Version |
+|---|---|
+| Supported Minecraft | 1.20.2 |
+| Compile Minecraft | 1.20.2 |
+| Java | 17 |
+| Fabric Loader (build / runtime minimum) | 0.19.1 / 0.16.13 |
+| Fabric API | 0.89.1+1.20.2 |
+| Mod Menu | 8.0.0 |
+| YACL | 3.2.0+1.20.2 |
+| Loom / Gradle | 1.14.10 / 9.2.1 |
+
+Dependency variants must match the running Minecraft version. Build pins are verified combinations; the runtime metadata specifies tested minimums. The root TXT folder and YACL selector are ported from commit 91e03df. Promotional icon720-450.png remains on disk and is excluded from binary and source archives.
+
+Java-only TXT and message-editor regression checks run under Gradle check. A successful build verifies compilation and packaging, not in-game interaction.
+
+Verified locally on 2026-10-20: clean Gradle build; 16 TXT checks and 11 message-editor checks passed. Archive inspected; JAR size 119371 bytes. In-game interactions remain untested.
