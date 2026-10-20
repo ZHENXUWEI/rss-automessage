@@ -20,7 +20,7 @@ public class CountdownHud {
     private static final Identifier COUNTDOWN_HUD_ID = Identifier.fromNamespaceAndPath("rss-automessage", "countdown");
 
     public void register() {
-        // ✅ 26.1 正确的 HUD API
+        // Register before the vanilla chat HUD element.
         HudElementRegistry.attachElementBefore(
                 CHAT_HUD_ID,
                 COUNTDOWN_HUD_ID,
@@ -42,7 +42,7 @@ public class CountdownHud {
         if (config.scheduledMessageList == null || config.scheduledMessageList.isEmpty()) return;
 
         Minecraft client = Minecraft.getInstance();
-        if (client.player == null || client.options.hideGui) return;
+        if (client.player == null || client.gui.hud.isHidden()) return;
 
         Font font = client.font;
         if (font == null) return;
