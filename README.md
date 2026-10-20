@@ -18,16 +18,16 @@
 
 | 依赖项 | 版本要求 | 下载链接 |
 |--------|---------|---------|
-| **Fabric Loader** | ≥0.16.13 | [Download](https://curseforge.com/minecraft/mc-mods/fabric-api) |
-| **Fabric API** | ≥0.133.4 | [Download](https://curseforge.com/minecraft/mc-mods/fabric-api) |
-| **Mod Menu**| ≥15.0.0 | [Download](https://curseforge.com/minecraft/mc-mods/modmenu) |
-| **YACL** | ≥3.8.2 | [Download](https://curseforge.com/minecraft/mc-mods/yacl) |
+| **Fabric Loader** | ≥0.18.4 | [Download](https://fabricmc.net/use/installer/) |
+| **Fabric API** | ≥0.145.4，Minecraft 26.1 版本 | [Download](https://curseforge.com/minecraft/mc-mods/fabric-api) |
+| **Mod Menu**| ≥18.0.0 | [Download](https://curseforge.com/minecraft/mc-mods/modmenu) |
+| **YACL** | ≥3.9.2 | [Download](https://curseforge.com/minecraft/mc-mods/yacl) |
 
 ---
 
 ## 📥 安装说明
 
-1. 确保已安装 [Fabric Loader](https://fabricmc.net/use/installer/) 0.16.13 或更高版本
+1. 确保已安装 [Fabric Loader](https://fabricmc.net/use/installer/) 0.18.4 或更高版本（Minecraft 26.1 / Java 25）
 2. 下载本模组 `.jar` 文件
 3. 将文件放入 `.minecraft/mods/` 文件夹
 4. 启动游戏，在 **Mods** 菜单中确认加载成功
@@ -35,6 +35,26 @@
 ---
 
 ## 🚀 使用指南
+
+### TXT 文本选择（Minecraft 26.1）
+
+首次启动会在**当前游戏实例根目录**创建空文件夹 `rss-automessage/`（与 `mods/`、`config/` 同级；启用版本隔离时位于该版本的游戏目录）。
+
+1. 将任意名称的 UTF-8 `.txt` 文件放入该文件夹，无需重命名为 `messages.txt`。
+2. 打开模组配置 → **定时发送** → **选择 TXT 文本**，进入 YACL 选择页。
+3. 在“可用文本”中点击 **使用 →**，文件会成为“当前使用”。支持打开目录、刷新列表及重新读取当前文件。
+
+TXT 每行一条消息；`/` 开头表示指令，`#` 或 `//` 开头表示注释，空行忽略。例如：
+
+```text
+# 欢迎消息
+欢迎来到服务器！
+/warp spawn
+```
+
+切换成功会替换消息列表、停止旧发送队列并重置倒计时。空文件或读取失败不会覆盖已有消息。选择和已读取内容会保存；修改源文件后请点击“重新读取”，重启不会自动重新导入。返回时会重新构建配置界面，保存设置不会覆盖刚切换的消息。选择页读取期间返回会取消本次切换。
+
+原有 `config/rss-automessage/messages.txt` 快速导入和命令仍可使用。
 
 ### 基础配置
 
@@ -156,16 +176,16 @@ A: 在配置界面关闭 "启用定时发送" 即可，不需要重启游戏。
 
 | Dependency | Version | Download |
 |------------|---------|----------|
-| **Fabric Loader** | ≥0.16.13 | [Download](https://curseforge.com/minecraft/mc-mods/fabric-api) |
-| **Fabric API** | ≥0.133.4 | [Download](https://curseforge.com/minecraft/mc-mods/fabric-api) |
-| **Mod Menu**| ≥15.0.0 | [Download](https://curseforge.com/minecraft/mc-mods/modmenu) |
-| **YACL** | ≥3.8.2 | [Download](https://curseforge.com/minecraft/mc-mods/yacl) |
+| **Fabric Loader** | ≥0.18.4 | [Download](https://fabricmc.net/use/installer/) |
+| **Fabric API** | ≥0.145.4 for Minecraft 26.1 | [Download](https://curseforge.com/minecraft/mc-mods/fabric-api) |
+| **Mod Menu**| ≥18.0.0 | [Download](https://curseforge.com/minecraft/mc-mods/modmenu) |
+| **YACL** | ≥3.9.2 | [Download](https://curseforge.com/minecraft/mc-mods/yacl) |
 
 ---
 
 ## 📥 Installation
 
-1. Ensure [Fabric Loader](https://fabricmc.net/use/installer/) 0.16.13 or higher is installed
+1. Ensure [Fabric Loader](https://fabricmc.net/use/installer/) 0.18.4 or higher is installed (Minecraft 26.1 / Java 25)
 2. Download the mod `.jar` file
 3. Place the file into your `.minecraft/mods/` folder
 4. Launch the game and verify the mod is loaded in the **Mods** menu
@@ -174,7 +194,15 @@ A: 在配置界面关闭 "启用定时发送" 即可，不需要重启游戏。
 
 ## 🚀 Usage Guide
 
-### Basic Configuration
+### TXT Text Selection (Minecraft 26.1)
+
+On first launch the mod creates an **empty** `rss-automessage/` folder beside `mods/` and `config/` in the current game instance. For isolated launcher profiles, use that profile's game directory.
+
+Place UTF-8 `.txt` files there, then open **Configure → Scheduled Messages → Choose TXT text**. In the YACL selector, click **Use →** beside an available file to make it active. Use **Open TXT directory**, **Refresh**, and **Reload** to manage the list. TXT filenames can be anything; each line is a message, `/` starts a command, and `#` or `//` starts a comment.
+
+A successful switch replaces the message list, stops the old queue and resets the countdown. Empty or unreadable files leave the previous messages unchanged. The selected filename and imported messages persist across restarts; reload explicitly after editing a source file. Leaving the selector during a read cancels that switch. The legacy `config/rss-automessage/messages.txt` import remains available.
+
+### Opening Settings
 
 After installation, press `Esc` → **Mods** → find **RS's AutoMessage** → **Configure** to open the settings interface.
 

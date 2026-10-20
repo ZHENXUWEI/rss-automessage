@@ -43,15 +43,43 @@ loom {
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    implementation  "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-    implementation  "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     // YACL - 配置文件与GUI
-    implementation ("dev.isxander:yet-another-config-lib:${project.yacl_version}")
+    implementation("dev.isxander:yet-another-config-lib:${project.yacl_version}")
     // Mod Menu - 配置入口
-    implementation ("com.terraformersmc:modmenu:${project.modmenu_version}")
+    implementation("com.terraformersmc:modmenu:${project.modmenu_version}")
+}
+
+// Exercise real TXT files without starting Minecraft or adding a test-framework dependency.
+sourceSets {
+    main.resources.exclude('assets/rss-automessage/icon720-450.png')
+    txtTest {
+        compileClasspath += sourceSets.client.output
+        runtimeClasspath += sourceSets.client.output
+    }
+}
+
+tasks.register('txtLibraryTest', JavaExec) {
+    group = 'verification'
+    description = 'Checks TXT directory creation, scanning and parsing using temporary files.'
+    classpath = sourceSets.txtTest.runtimeClasspath
+    mainClass = 'cn.islys.util.TextFileLibraryTest'
+}
+
+tasks.register('messageListEditorTest', JavaExec) {
+    group = 'verification'
+    description = 'Checks repeated edits preserve hidden messages without duplication.'
+    classpath = sourceSets.txtTest.runtimeClasspath
+    mainClass = 'cn.islys.config.MessageListEditorTest'
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('txtLibraryTest')
+    dependsOn tasks.named('messageListEditorTest')
 }
 
 processResources {

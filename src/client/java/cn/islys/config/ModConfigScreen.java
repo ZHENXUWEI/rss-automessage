@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class ModConfigScreen {
 
@@ -24,7 +23,7 @@ public class ModConfigScreen {
 
         return YetAnotherConfigLib.createBuilder()
                 .title(Component.translatable("config.auto-messenger.title"))
-                .category(buildScheduledCategory(defaults, config))
+                .category(buildScheduledCategory(defaults, config, parent))
                 .category(buildReplyCategory(defaults, config))
                 .category(buildDisplayCategory(defaults, config))
                 .save(() -> AutoMessengerConfig.save())
@@ -33,7 +32,7 @@ public class ModConfigScreen {
     }
 
     // ========== 定时发送分类 ==========
-    private static ConfigCategory buildScheduledCategory(AutoMessengerConfig defaults, AutoMessengerConfig config) {
+    private static ConfigCategory buildScheduledCategory(AutoMessengerConfig defaults, AutoMessengerConfig config, Screen parent) {
         ConfigCategory.Builder scheduledCat = ConfigCategory.createBuilder()
                 .name(Component.translatable("config.auto-messenger.category.scheduled"));
 
@@ -77,13 +76,28 @@ public class ModConfigScreen {
                 value -> config.enableLoop = value
         ));
 
-        scheduledCat.option(createBoolOption(
-                Component.translatable("config.auto-messenger.random_send"),
-                Component.translatable("config.auto-messenger.random_send.desc"),
-                defaults.randomSend,
-                () -> config.randomSend,
-                value -> config.randomSend = value
-        ));
+        scheduledCat.option(Option.<Boolean>createBuilder()
+                .name(Component.translatable("config.auto-messenger.random_send"))
+                .description(OptionDescription.of(Component.translatable("config.auto-messenger.random_send.desc")))
+                .binding(defaults.randomSend, () -> config.randomSend, value -> config.randomSend = value)
+                .controller(TickBoxControllerBuilder::create)
+                .build());
+
+        scheduledCat.group(OptionGroup.createBuilder()
+                .name(Component.translatable("config.auto-messenger.txt.title"))
+                .option(LabelOption.create(config.selectedTextFile.isEmpty()
+                        ? Component.translatable("config.auto-messenger.txt.manual", config.scheduledMessageList.size())
+                        : Component.translatable("config.auto-messenger.txt.selected", config.selectedTextFile, config.scheduledMessageList.size())))
+                .option(ButtonOption.createBuilder()
+                        .name(Component.translatable("config.auto-messenger.txt.choose"))
+                        .text(Component.translatable("config.auto-messenger.txt.open"))
+                        .description(OptionDescription.of(Component.translatable("config.auto-messenger.txt.choose.desc")))
+                        .action((screen, option) -> {
+                            if (screen.pendingChanges()) screen.finishOrSave();
+                            Minecraft.getInstance().setScreen(TextSelectionScreen.create(parent));
+                        })
+                        .build())
+                .build());
 
         // 消息统计组
         OptionGroup.Builder statsGroup = OptionGroup.createBuilder()
@@ -111,28 +125,32 @@ public class ModConfigScreen {
                 .name(Component.translatable("config.auto-messenger.clear_list"))
                 .action((screen, option) -> {
                     config.scheduledMessageList.clear();
+                    config.selectedTextFile = "";
+                    RSsAutoMessageClient client = RSsAutoMessageClient.getInstance();
+                    if (client != null) client.onMessageListChanged();
                     AutoMessengerConfig.save();
-                    Minecraft.getInstance().setScreen(ModConfigScreen.create(screen));
+                    Minecraft.getInstance().setScreen(ModConfigScreen.create(null));
                 })
                 .build());
 
         scheduledCat.group(statsGroup.build());
 
         // ListOption
-        int maxEntries = (config.showAllMessages || config.scheduledMessageList.size() <= 100) ? 10000 : 100;
+        boolean limited = config.scheduledMessageList.size() > 100 && !config.showAllMessages;
+        MessageListEditor messageEditor = new MessageListEditor(config.scheduledMessageList, config.showAllMessages);
+        int maxEntries = limited ? 100 : Math.max(10000, config.scheduledMessageList.size());
 
         scheduledCat.group(ListOption.<String>createBuilder()
                 .name(Component.translatable("config.auto-messenger.scheduled_list"))
                 .description(OptionDescription.of(Component.translatable("config.auto-messenger.scheduled_list.desc")))
                 .binding(
                         defaults.scheduledMessageList,
-                        () -> {
-                            if (config.scheduledMessageList.size() > 100 && !config.showAllMessages) {
-                                return config.scheduledMessageList.stream().limit(100).collect(Collectors.toList());
-                            }
-                            return new ArrayList<>(config.scheduledMessageList);
-                        },
-                        newVal -> config.scheduledMessageList = new ArrayList<>(newVal)
+                        () -> messageEditor.visibleMessages(config.scheduledMessageList),
+                        newVal -> {
+                            List<String> updated = messageEditor.merge(newVal);
+                            if (!updated.equals(config.scheduledMessageList)) config.selectedTextFile = "";
+                            config.scheduledMessageList = updated;
+                        }
                 )
                 .initial(Component.translatable("config.auto-messenger.message_entry.default").getString())
                 .controller(StringControllerBuilder::create)
@@ -146,7 +164,7 @@ public class ModConfigScreen {
                 .name(Component.translatable("config.auto-messenger.file_operations"))
                 .collapsed(false);
 
-        addFileButtons(fileGroup, config);
+        addFileButtons(fileGroup);
         scheduledCat.group(fileGroup.build());
 
         return scheduledCat.build();
@@ -162,7 +180,10 @@ public class ModConfigScreen {
                 .build();
     }
 
-    private static void addFileButtons(OptionGroup.Builder group, AutoMessengerConfig config) {
+    private static void showFeedback(Minecraft client, Component message) {
+        client.getChatListener().handleSystemMessage(message, false);
+    }
+    private static void addFileButtons(OptionGroup.Builder group) {
         group.option(LabelOption.create(
                 Component.translatable("config.auto-messenger.import_notice.line1")
                         .append(Component.literal("\n"))
@@ -171,7 +192,7 @@ public class ModConfigScreen {
                         .append(Component.translatable("config.auto-messenger.import_notice.line3"))
         ));
 
-        // 打开文件夹按钮
+        // ✅ 打开文件夹按钮 - 让用户放入 TXT 文件
         group.option(ButtonOption.createBuilder()
                 .name(Component.translatable("config.auto-messenger.open_folder"))
                 .action((screen, option) -> {
@@ -179,7 +200,7 @@ public class ModConfigScreen {
                 })
                 .build());
 
-        // 快速导入按钮
+        // ✅ 快速导入按钮 - 导入默认的 messages.txt
         group.option(ButtonOption.createBuilder()
                 .name(Component.translatable("config.auto-messenger.quick_import"))
                 .description(OptionDescription.of(
@@ -187,8 +208,7 @@ public class ModConfigScreen {
                 ))
                 .action((screen, option) -> {
                     Minecraft client = Minecraft.getInstance();
-                    // 26.1 改用 sendSystemMessage
-                    client.player.sendSystemMessage(
+                    showFeedback(client,
                             Component.translatable("chat.auto-messenger.importing", "messages.txt")
                                     .withStyle(ChatFormatting.YELLOW)
                     );
@@ -197,13 +217,13 @@ public class ModConfigScreen {
                         MessageImporter.ImportResult result = MessageImporter.importFromDefault();
                         client.execute(() -> {
                             if (result.success()) {
-                                client.player.sendSystemMessage(
+                                showFeedback(client,
                                         Component.translatable("chat.auto-messenger.import.success", result.message())
                                                 .withStyle(ChatFormatting.GREEN)
                                 );
-                                client.setScreen(ModConfigScreen.create(screen));
+                                client.setScreen(ModConfigScreen.create(null));
                             } else {
-                                client.player.sendSystemMessage(
+                                showFeedback(client,
                                         Component.translatable("chat.auto-messenger.import.failed", result.message())
                                                 .withStyle(ChatFormatting.RED)
                                 );
@@ -214,6 +234,9 @@ public class ModConfigScreen {
                 .build());
     }
 
+    /**
+     * 使用操作系统原生命令打开文件夹（与 Minecraft 原版一致）
+     */
     private static void openFolderNative(Path dir) {
         try {
             if (!java.nio.file.Files.exists(dir)) {
@@ -232,7 +255,7 @@ public class ModConfigScreen {
             }
 
             Minecraft.getInstance().execute(() -> {
-                Minecraft.getInstance().player.sendSystemMessage(
+                showFeedback(Minecraft.getInstance(),
                         Component.translatable("chat.auto-messenger.folder.opened")
                                 .withStyle(ChatFormatting.GREEN)
                 );
@@ -240,11 +263,11 @@ public class ModConfigScreen {
 
         } catch (Exception e) {
             Minecraft.getInstance().execute(() -> {
-                Minecraft.getInstance().player.sendSystemMessage(
+                showFeedback(Minecraft.getInstance(),
                         Component.translatable("chat.auto-messenger.folder.failed")
                                 .withStyle(ChatFormatting.RED)
                 );
-                Minecraft.getInstance().player.sendSystemMessage(
+                showFeedback(Minecraft.getInstance(),
                         Component.literal("§7路径: " + dir.toAbsolutePath())
                 );
             });
@@ -288,12 +311,13 @@ public class ModConfigScreen {
     private static ConfigCategory buildDisplayCategory(AutoMessengerConfig defaults, AutoMessengerConfig config) {
         return ConfigCategory.createBuilder()
                 .name(Component.translatable("config.auto-messenger.category.display"))
-                .option(createBoolOption(
-                        Component.translatable("config.auto-messenger.show_countdown"),
-                        Component.translatable("config.auto-messenger.show_countdown.desc"),
-                        defaults.showCountdown,
-                        () -> config.showCountdown,
-                        value -> config.showCountdown = value))
+                .option(Option.<Boolean>createBuilder()
+                        .name(Component.translatable("config.auto-messenger.show_countdown"))
+                        .description(OptionDescription.of(Component.translatable("config.auto-messenger.show_countdown.desc")))
+                        .binding(defaults.showCountdown, () -> config.showCountdown, value -> config.showCountdown = value)
+                        .controller(TickBoxControllerBuilder::create)
+                        .flag(OptionFlag.GAME_RESTART)
+                        .build())
                 .build();
     }
 }
