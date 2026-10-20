@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class ModConfigScreen {
 
@@ -24,7 +23,7 @@ public class ModConfigScreen {
 
         return YetAnotherConfigLib.createBuilder()
                 .title(Component.translatable("config.auto-messenger.title"))
-                .category(buildScheduledCategory(defaults, config))
+                .category(buildScheduledCategory(defaults, config, parent))
                 .category(buildReplyCategory(defaults, config))
                 .category(buildDisplayCategory(defaults, config))
                 .save(() -> AutoMessengerConfig.save())
@@ -33,7 +32,7 @@ public class ModConfigScreen {
     }
 
     // ========== 定时发送分类 ==========
-    private static ConfigCategory buildScheduledCategory(AutoMessengerConfig defaults, AutoMessengerConfig config) {
+    private static ConfigCategory buildScheduledCategory(AutoMessengerConfig defaults, AutoMessengerConfig config, Screen parent) {
         ConfigCategory.Builder scheduledCat = ConfigCategory.createBuilder()
                 .name(Component.translatable("config.auto-messenger.category.scheduled"));
 
@@ -84,6 +83,22 @@ public class ModConfigScreen {
                 .controller(TickBoxControllerBuilder::create)
                 .build());
 
+        scheduledCat.group(OptionGroup.createBuilder()
+                .name(Component.translatable("config.auto-messenger.txt.title"))
+                .option(LabelOption.create(config.selectedTextFile.isEmpty()
+                        ? Component.translatable("config.auto-messenger.txt.manual", config.scheduledMessageList.size())
+                        : Component.translatable("config.auto-messenger.txt.selected", config.selectedTextFile, config.scheduledMessageList.size())))
+                .option(ButtonOption.createBuilder()
+                        .name(Component.translatable("config.auto-messenger.txt.choose"))
+                        .text(Component.translatable("config.auto-messenger.txt.open"))
+                        .description(OptionDescription.of(Component.translatable("config.auto-messenger.txt.choose.desc")))
+                        .action((screen, option) -> {
+                            if (screen.pendingChanges()) screen.finishOrSave();
+                            Minecraft.getInstance().setScreen(TextSelectionScreen.create(parent));
+                        })
+                        .build())
+                .build());
+
         // 消息统计组
         OptionGroup.Builder statsGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("config.auto-messenger.stats_group.name", config.scheduledMessageList.size()));
@@ -110,6 +125,9 @@ public class ModConfigScreen {
                 .name(Component.translatable("config.auto-messenger.clear_list"))
                 .action((screen, option) -> {
                     config.scheduledMessageList.clear();
+                    config.selectedTextFile = "";
+                    RSsAutoMessageClient client = RSsAutoMessageClient.getInstance();
+                    if (client != null) client.onMessageListChanged();
                     AutoMessengerConfig.save();
                     Minecraft.getInstance().setScreen(ModConfigScreen.create(null));
                 })
@@ -118,20 +136,21 @@ public class ModConfigScreen {
         scheduledCat.group(statsGroup.build());
 
         // ListOption
-        int maxEntries = (config.showAllMessages || config.scheduledMessageList.size() <= 100) ? 10000 : 100;
+        boolean limited = config.scheduledMessageList.size() > 100 && !config.showAllMessages;
+        MessageListEditor messageEditor = new MessageListEditor(config.scheduledMessageList, config.showAllMessages);
+        int maxEntries = limited ? 100 : Math.max(10000, config.scheduledMessageList.size());
 
         scheduledCat.group(ListOption.<String>createBuilder()
                 .name(Component.translatable("config.auto-messenger.scheduled_list"))
                 .description(OptionDescription.of(Component.translatable("config.auto-messenger.scheduled_list.desc")))
                 .binding(
                         defaults.scheduledMessageList,
-                        () -> {
-                            if (config.scheduledMessageList.size() > 100 && !config.showAllMessages) {
-                                return config.scheduledMessageList.stream().limit(100).collect(Collectors.toList());
-                            }
-                            return new ArrayList<>(config.scheduledMessageList);
-                        },
-                        newVal -> config.scheduledMessageList = new ArrayList<>(newVal)
+                        () -> messageEditor.visibleMessages(config.scheduledMessageList),
+                        newVal -> {
+                            List<String> updated = messageEditor.merge(newVal);
+                            if (!updated.equals(config.scheduledMessageList)) config.selectedTextFile = "";
+                            config.scheduledMessageList = updated;
+                        }
                 )
                 .initial(Component.translatable("config.auto-messenger.message_entry.default").getString())
                 .controller(StringControllerBuilder::create)

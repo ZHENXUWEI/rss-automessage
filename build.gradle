@@ -53,10 +53,34 @@ dependencies {
     modImplementation("dev.isxander:yet-another-config-lib:${project.yacl_version}")
     // Mod Menu - 配置入口
     modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
+}
 
-    // 让 1.21 支持原生文件选择窗口
-//    include "org.lwjgl:lwjgl-tinyfd:3.3.2:natives-windows"
-//    modImplementation "org.lwjgl:lwjgl-tinyfd:3.3.2"
+// Exercise real TXT files without starting Minecraft or adding a test-framework dependency.
+sourceSets {
+    main.resources.exclude('assets/rss-automessage/icon720-450.png')
+    txtTest {
+        compileClasspath += sourceSets.client.output
+        runtimeClasspath += sourceSets.client.output
+    }
+}
+
+tasks.register('txtLibraryTest', JavaExec) {
+    group = 'verification'
+    description = 'Checks TXT directory creation, scanning and parsing using temporary files.'
+    classpath = sourceSets.txtTest.runtimeClasspath
+    mainClass = 'cn.islys.util.TextFileLibraryTest'
+}
+
+tasks.register('messageListEditorTest', JavaExec) {
+    group = 'verification'
+    description = 'Checks repeated edits preserve hidden messages without duplication.'
+    classpath = sourceSets.txtTest.runtimeClasspath
+    mainClass = 'cn.islys.config.MessageListEditorTest'
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('txtLibraryTest')
+    dependsOn tasks.named('messageListEditorTest')
 }
 
 processResources {
