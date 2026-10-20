@@ -68,6 +68,9 @@ public class AutoMessengerConfig {
     @SerialEntry
     public boolean randomSend = false;  // 随机发送顺序
 
+    @SerialEntry
+    public String selectedTextFile = "";
+
     public static AutoMessengerConfig getInstance() {
         return HANDLER.instance();
     }
