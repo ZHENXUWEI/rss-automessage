@@ -25,4 +25,4 @@ The promotional image is not referenced by mod metadata or code. It is retained 
 
 After exclusion and dependency declaration corrections: **127,039 bytes** (about 124 KiB), a reduction of **131,561 bytes / 50.9%**. Remaining compressed contents are approximately 65 KB of icon and 62 KB of code, translations and ZIP metadata. No Fabric API, Mod Menu or YACL JAR is embedded.
 
-Verification: clean Gradle build, 16 real-file TXT checks, 11 message-editor regression checks, archive inspection, and `git diff --check`. In-game UI interactions have not been manually executed.
+Verification: clean Gradle build, 16 real-file TXT checks, 11 message-editor regression checks, archive inspection, and `git diff --check`. The owner reports that manual in-game testing passed on 1.21.8 (and separately on 1.20.4). This does not establish in-game compatibility for other versions.
