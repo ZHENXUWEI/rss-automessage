@@ -7,6 +7,7 @@ import dev.isxander.yacl3.api.controller.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.network.chat.Component;
 
 import java.nio.file.Path;
@@ -16,6 +17,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ModConfigScreen {
+    private static final SystemToast.SystemToastId FILE_OPERATION_TOAST = new SystemToast.SystemToastId(5000L);
 
     public static Screen create(Screen parent) {
         AutoMessengerConfig config = AutoMessengerConfig.getInstance();
@@ -181,7 +183,12 @@ public class ModConfigScreen {
     }
 
     private static void showFeedback(Minecraft client, Component message) {
-        client.getChatListener().handleSystemMessage(message, false);
+        if (client.player == null) {
+            SystemToast.addOrUpdate(client.getToastManager(), FILE_OPERATION_TOAST,
+                    Component.translatable("config.auto-messenger.file_operations"), message);
+        } else {
+            client.gui.getChat().addClientSystemMessage(message);
+        }
     }
     private static void addFileButtons(OptionGroup.Builder group) {
         group.option(LabelOption.create(

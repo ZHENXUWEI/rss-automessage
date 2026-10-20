@@ -15,4 +15,6 @@ Dependency variants must match the running Minecraft version. Build pins are ver
 
 Java-only TXT and message-editor regression checks run under Gradle check. A successful build verifies compilation and packaging, not in-game interaction.
 
-Verified locally on 2026-10-20: clean Gradle build; 16 TXT checks and 11 message-editor checks passed. Archive inspected; JAR size 116586 bytes. In-game interactions remain untested.
+Verified locally on 2026-10-20: clean Gradle build; 16 TXT checks and 11 message-editor checks passed. Archive inspected; JAR size 116872 bytes. In-game interactions remain untested.
+
+Main-menu legacy file-operation feedback uses a native SystemToast; in-world feedback uses addClientSystemMessage. This avoids ChatListener dropping messages without a player.
