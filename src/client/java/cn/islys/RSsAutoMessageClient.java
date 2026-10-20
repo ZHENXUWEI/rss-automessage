@@ -63,7 +63,11 @@ public class RSsAutoMessageClient implements ClientModInitializer {
         AutoMessageCommand.register();
 
         // 启动时检查并创建示例文件
-        MessageImporter.createExampleFile();
+        try {
+            MessageImporter.getTextLibrary().ensureDirectory();
+        } catch (java.io.IOException e) {
+            RSsAutoMessage.LOGGER.error("Could not create TXT directory", e);
+        }
     }
 
     private void onServerJoined() {
@@ -222,6 +226,11 @@ public class RSsAutoMessageClient implements ClientModInitializer {
         System.out.println("[AutoMessage] All sending stopped");
     }
 
+    public void onMessageListChanged() {
+        stopAllSending();
+        resetStopFlag();
+        resetCountdown();
+    }
     public void resetStopFlag() {
         stopRequested = false;
     }

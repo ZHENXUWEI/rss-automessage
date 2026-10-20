@@ -1,9 +1,10 @@
 package cn.islys.util;
 
 import cn.islys.config.AutoMessengerConfig;
+import cn.islys.RSsAutoMessageClient;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -16,6 +17,22 @@ public class MessageImporter {
     private static final Path CONFIG_DIR = FabricLoader.getInstance().getConfigDir()
             .resolve("rss-automessage");
     private static final Path DEFAULT_FILE = CONFIG_DIR.resolve("messages.txt");
+    private static final TextFileLibrary TEXT_LIBRARY = new TextFileLibrary(FabricLoader.getInstance().getGameDir());
+
+    public static TextFileLibrary getTextLibrary() {
+        return TEXT_LIBRARY;
+    }
+
+    /** Apply a fully read snapshot on the Minecraft client thread. */
+    public static void applyTextFile(String filename, TextFileLibrary.Content content) {
+        AutoMessengerConfig config = AutoMessengerConfig.getInstance();
+        config.scheduledMessageList = new ArrayList<>(content.messages());
+        config.selectedTextFile = filename;
+        config.currentMessageIndex = 0;
+        RSsAutoMessageClient client = RSsAutoMessageClient.getInstance();
+        if (client != null) client.onMessageListChanged();
+        AutoMessengerConfig.save();
+    }
 
     /**
      * 智能解析行
@@ -25,28 +42,7 @@ public class MessageImporter {
      * - 其他 = 普通消息
      */
     public static String parseLine(String line) {
-        String trimmed = line.trim();
-
-        // 空行
-        if (trimmed.isEmpty()) {
-            return null;
-        }
-
-        // 注释行（# 或 //）
-        if (trimmed.startsWith("#") || trimmed.startsWith("//")) {
-            return null;
-        }
-
-        // 指令行（/ 开头）
-        if (trimmed.startsWith("/")) {
-            // 去掉开头的 /，并标记为指令
-            String cmd = trimmed.substring(1).trim();
-            if (cmd.isEmpty()) return null;
-            return cmd + "|cmd";
-        }
-
-        // 普通消息
-        return trimmed + "|msg";
+        return TextFileLibrary.parseLine(line);
     }
 
     /**
@@ -60,62 +56,30 @@ public class MessageImporter {
      * 从指定路径导入（智能格式）
      */
     public static ImportResult importFromFile(Path file) {
-        if (!Files.exists(file)) {
-            return new ImportResult(false, 0, "文件不存在: " + file.getFileName(), null);
-        }
-
-        List<String> messages = new ArrayList<>();
-        List<String> errors = new ArrayList<>();
-        int lineNumber = 0;
-        int commentCount = 0;
-        int commandCount = 0;
-        int messageCount = 0;
-
-        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                lineNumber++;
-
-                String parsed = parseLine(line);
-                if (parsed == null) {
-                    if (line.trim().startsWith("#") || line.trim().startsWith("//")) {
-                        commentCount++;
-                    }
-                    continue; // 跳过注释和空行
-                }
-
-                // 统计
-                if (parsed.endsWith("|cmd")) commandCount++;
-                else messageCount++;
-
-                messages.add(parsed);
-
-                // 每1000行让出线程
-                if (lineNumber % 1000 == 0) {
-                    Thread.yield();
-                }
-            }
+        TextFileLibrary.Content content;
+        try {
+            content = TextFileLibrary.readFile(file);
         } catch (IOException e) {
             return new ImportResult(false, 0, "读取失败: " + e.getMessage(), null);
         }
-
-        if (messages.isEmpty()) {
-            return new ImportResult(false, 0, "没有找到有效的消息（全是注释或空行）", null);
+        Minecraft client = Minecraft.getInstance();
+        if (client.isSameThread()) {
+            applyTextFile("", content);
+        } else {
+            client.submit(() -> applyTextFile("", content)).join();
         }
 
-        // 更新配置
-        AutoMessengerConfig config = AutoMessengerConfig.getInstance();
-        config.scheduledMessageList.clear();
-        config.scheduledMessageList.addAll(messages);
-        AutoMessengerConfig.save();
+        int commandCount = content.commandCount();
+        int commentCount = content.commentCount();
+        int messageCount = content.messages().size() - commandCount;
 
         StringBuilder msg = new StringBuilder();
-        msg.append("导入 ").append(messages.size()).append(" 条");
+        msg.append("导入 ").append(content.messages().size()).append(" 条");
         if (commandCount > 0) msg.append(" (").append(commandCount).append(" 条指令)");
         if (messageCount > 0) msg.append(" (").append(messageCount).append(" 条消息)");
         if (commentCount > 0) msg.append("，跳过 ").append(commentCount).append(" 行注释");
 
-        return new ImportResult(true, messages.size(), msg.toString(), errors);
+        return new ImportResult(true, content.messages().size(), msg.toString(), List.of());
     }
 
     /**
