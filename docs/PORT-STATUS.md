@@ -4,7 +4,7 @@ All 12 existing local version branches have mod 1.1.5 TXT selection updates and 
 
 GitHub push is pending: stored authentication was rejected. The owner requested completing local updates first, then pushing together after login is restored. No branch was force-pushed.
 
-| Local branch | Existing GitHub branch | Feature commit | JAR bytes | Checks |
+| Local branch | Existing GitHub branch | Verified code commit | JAR bytes | Checks |
 |---|---|---|---:|---:|
 | 1.21.6-11 | 1.21.6-11 | 91e03df | 127039 | 27 |
 | 1.21.5 | 1.21.5 | 23354f0 | 128952 | 27 |
@@ -17,7 +17,7 @@ GitHub push is pending: stored authentication was rejected. The owner requested 
 | 1.20.3-4 | 1.20.3-4 | e44aa3c | 119369 | 27 |
 | 1.20.2 | 1.20.2 | 719a8d4 | 119371 | 27 |
 | 1.20.1 | 1.20.1 | 3fad330 | 119370 | 27 |
-| 26.1 | 26.1 | dde6a7c | 116586 | 27 |
+| 26.1 | 26.1 | 02009c5 | 116872 | 27 |
 
 Artifacts: sibling publish/1.1.5 directory. build-verification.csv records SHA-256, exact MC constraints and Java levels for all twelve JARs. All archives were inspected: TXT selection classes are present, promotional icon720-450.png is absent, and no test classes or third-party dependency JARs are bundled.
 
