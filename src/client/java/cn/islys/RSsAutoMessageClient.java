@@ -62,8 +62,12 @@ public class RSsAutoMessageClient implements ClientModInitializer {
         // 注册命令
         AutoMessageCommand.register();
 
-        // 启动时检查并创建示例文件
-        MessageImporter.createExampleFile();
+        // 只创建空的 TXT 目录；用户自行放入文件。
+        try {
+            MessageImporter.getTextLibrary().ensureDirectory();
+        } catch (java.io.IOException e) {
+            RSsAutoMessage.LOGGER.error("Could not create TXT directory", e);
+        }
     }
 
     private void onServerJoined() {
@@ -224,6 +228,12 @@ public class RSsAutoMessageClient implements ClientModInitializer {
 
     public void resetStopFlag() {
         stopRequested = false;
+    }
+
+    public void onMessageListChanged() {
+        stopAllSending();
+        resetStopFlag();
+        resetCountdown();
     }
 
     public boolean isStopRequested() {

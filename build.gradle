@@ -55,6 +55,34 @@ dependencies {
     modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 }
 
+// Exercise real TXT files without starting Minecraft or adding a test-framework dependency.
+sourceSets {
+    main.resources.exclude('assets/rss-automessage/icon720-450.png')
+    txtTest {
+        compileClasspath += sourceSets.client.output
+        runtimeClasspath += sourceSets.client.output
+    }
+}
+
+tasks.register('txtLibraryTest', JavaExec) {
+    group = 'verification'
+    description = 'Checks TXT directory creation, scanning and parsing using temporary files.'
+    classpath = sourceSets.txtTest.runtimeClasspath
+    mainClass = 'cn.islys.util.TextFileLibraryTest'
+}
+
+tasks.register('messageListEditorTest', JavaExec) {
+    group = 'verification'
+    description = 'Checks repeated edits preserve hidden messages without duplication.'
+    classpath = sourceSets.txtTest.runtimeClasspath
+    mainClass = 'cn.islys.config.MessageListEditorTest'
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('txtLibraryTest')
+    dependsOn tasks.named('messageListEditorTest')
+}
+
 processResources {
 	inputs.property "version", project.version
 
