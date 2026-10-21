@@ -29,6 +29,8 @@ On Linux use `python3` and `./gradlew`. The preparation command downloads the fi
 
 YACL Reforged is LGPL-3.0-or-later. Preserve the upstream binary's embedded license, notices and third-party licenses when distributing it; provide its corresponding source JAR and original source archive alongside the dependency. AutoMessage remains MIT licensed.
 
+CI artifact uploads include the separate dependency binary, source JAR, original source ZIP and provenance as well as AutoMessage. Install only the two runtime mod JARs; the source artifacts are provided for inspection and redistribution.
+
 ## Actual client integration probe
 
 ```powershell
@@ -36,5 +38,7 @@ YACL Reforged is LGPL-3.0-or-later. Preserve the upstream binary's embedded lice
 ```
 
 The optional init script creates a separate development mod and a fresh `run/qa-forge-*` profile, with scheduled messages and replies disabled. The probe uses the actual Forge configuration extension and YACL button callbacks. Success prints `FORGE_SMOKE_PASS checks=20` and writes `forge-smoke-result.json` in that profile. It then closes its own client. QA classes and metadata are excluded from the normal binary and source JARs.
+
+To reuse an already complete Minecraft asset cache for a local probe, set `AUTOMESSAGE_ASSETS` to its absolute path. Without this optional environment variable, the official launcher handles asset downloads normally.
 
 The probe covers initial empty directory creation, TXT import/switch/reload, empty text preservation, cancellation when leaving the page, countdown reset, saving and persisted filename/message data. Multiplayer delivery and visible HUD behavior inside a world require separate gameplay testing.
