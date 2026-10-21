@@ -104,7 +104,7 @@ public final class TextSelectionScreen {
             public void onClose() {
                 // Leaving during a read cancels that selection. Returning always rebuilds bindings.
                 closed = true;
-                Minecraft.getInstance().setScreen(ModConfigScreen.create(settingsParent));
+                Minecraft.getInstance().gui.setScreen(ModConfigScreen.create(settingsParent));
             }
         };
         return activeScreen;
@@ -158,12 +158,12 @@ public final class TextSelectionScreen {
     }
 
     private void show() {
-        if (!closed) Minecraft.getInstance().setScreen(build());
+        if (!closed) Minecraft.getInstance().gui.setScreen(build());
     }
 
     private boolean isCurrentScreen() {
         // Disconnects and other game transitions may replace a screen without calling onClose().
-        if (Minecraft.getInstance().screen != activeScreen) closed = true;
+        if (Minecraft.getInstance().gui.screen() != activeScreen) closed = true;
         return !closed;
     }
 

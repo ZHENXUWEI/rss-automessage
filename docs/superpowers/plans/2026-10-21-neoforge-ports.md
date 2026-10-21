@@ -32,9 +32,9 @@ Files: config/AutoMessengerConfig.java, util/MessageImporter.java, command/AutoM
 - [x] Update README/build audit, copy the verified JAR to publish/1.1.5 and commit neofor-26.1.
 
 ## Task 5: Port and validate 26.2
-- [ ] Create neofor-26.2 from verified neofor-26.1; change native loader/YACL pins and MC constraints for 26.2.
-- [ ] Apply the established Fabric 26.2 GUI migrations: gui.setScreen()/screen(), gui.toastManager(), gui.hud.getChat() and gui.hud.isHidden(). Adapt any native NeoForge event signature changes using actual sources.
-- [ ] Run clean build and all 27 checks, inspect metadata/archive, review, update audit, package and commit.
+- [x] Create neofor-26.2 from verified neofor-26.1; change native loader/YACL pins and MC constraints for 26.2.
+- [x] Apply the established Fabric 26.2 GUI migrations: gui.setScreen()/screen(), gui.toastManager(), gui.hud.getChat() and gui.hud.isHidden(). Adapt any native NeoForge event signature changes using actual sources.
+- [x] Run clean build and all 27 checks, inspect metadata/archive, review, update audit, package and commit.
 
 ## Task 6: Port and validate 26.3
 - [ ] Create neofor-26.3 from verified neofor-26.2; change native loader/YACL pins and MC constraints for 26.3.

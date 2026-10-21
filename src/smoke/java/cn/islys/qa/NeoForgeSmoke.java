@@ -20,6 +20,8 @@ import net.neoforged.neoforge.common.NeoForge;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 
 /** Disposable, run-only integration mod. Never included in the shipped mod JAR. */
 @Mod(value = "rss_automessage_qa", dist = Dist.CLIENT)
@@ -30,6 +32,7 @@ public final class NeoForgeSmoke {
     private int closedTick;
     private long deadline = System.currentTimeMillis() + 180000;
     private Screen busyScreen;
+    private boolean readPoolDrained;
 
     public NeoForgeSmoke() {
         NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, this::tick);
@@ -91,6 +94,13 @@ public final class NeoForgeSmoke {
                 closedTick = ticks;
                 step(5);
             } else if (phase == 5) {
+                if (!readPoolDrained) {
+                    check(ForkJoinPool.commonPool().awaitQuiescence(5, TimeUnit.SECONDS),
+                            "async read pool drained after closing selector");
+                    readPoolDrained = true;
+                    closedTick = ticks;
+                    return;
+                }
                 if (ticks - closedTick < 10) return;
                 check(AutoMessengerConfig.getInstance().selectedTextFile.equals("beta.txt"), "leaving during read cancels selection");
                 check(AutoMessengerConfig.getInstance().scheduledMessageList.equals(List.of("reloaded beta|msg")),

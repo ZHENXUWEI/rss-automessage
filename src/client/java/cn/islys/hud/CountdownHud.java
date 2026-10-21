@@ -36,7 +36,7 @@ public class CountdownHud {
         if (config.scheduledMessageList == null || config.scheduledMessageList.isEmpty()) return;
 
         Minecraft client = Minecraft.getInstance();
-        if (client.player == null || client.options.hideGui) return;
+        if (client.player == null || client.gui.hud.isHidden()) return;
 
         Font font = client.font;
         if (font == null) return;
