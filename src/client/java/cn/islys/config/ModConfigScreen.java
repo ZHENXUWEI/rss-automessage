@@ -96,7 +96,7 @@ public class ModConfigScreen {
                         .description(OptionDescription.of(Component.translatable("config.auto-messenger.txt.choose.desc")))
                         .action((screen, option) -> {
                             if (screen.pendingChanges()) screen.finishOrSave();
-                            Minecraft.getInstance().setScreen(TextSelectionScreen.create(parent));
+                            Minecraft.getInstance().gui.setScreen(TextSelectionScreen.create(parent));
                         })
                         .build())
                 .build());
@@ -131,7 +131,7 @@ public class ModConfigScreen {
                     RSsAutoMessageClient client = RSsAutoMessageClient.getInstance();
                     if (client != null) client.onMessageListChanged();
                     AutoMessengerConfig.save();
-                    Minecraft.getInstance().setScreen(ModConfigScreen.create(null));
+                    Minecraft.getInstance().gui.setScreen(ModConfigScreen.create(null));
                 })
                 .build());
 
@@ -184,10 +184,10 @@ public class ModConfigScreen {
 
     private static void showFeedback(Minecraft client, Component message) {
         if (client.player == null) {
-            SystemToast.addOrUpdate(client.getToastManager(), FILE_OPERATION_TOAST,
+            SystemToast.addOrUpdate(client.gui.toastManager(), FILE_OPERATION_TOAST,
                     Component.translatable("config.auto-messenger.file_operations"), message);
         } else {
-            client.gui.getChat().addClientSystemMessage(message);
+            client.gui.hud.getChat().addClientSystemMessage(message);
         }
     }
     private static void addFileButtons(OptionGroup.Builder group) {
@@ -228,7 +228,7 @@ public class ModConfigScreen {
                                         Component.translatable("chat.auto-messenger.import.success", result.message())
                                                 .withStyle(ChatFormatting.GREEN)
                                 );
-                                client.setScreen(ModConfigScreen.create(null));
+                                client.gui.setScreen(ModConfigScreen.create(null));
                             } else {
                                 showFeedback(client,
                                         Component.translatable("chat.auto-messenger.import.failed", result.message())

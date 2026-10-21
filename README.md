@@ -2,7 +2,7 @@
 # **中文版**
 
 # RS's AutoMessage
-此分支为 **Forge 26.1** 版（`forge-26.1`）。配置入口使用 Forge 原生 Mods 页面。
+此分支为 **Forge 26.2** 版（`forge-26.2`）。配置入口使用 Forge 原生 Mods 页面。
 
 ## ✨ 功能特性
 
@@ -20,8 +20,8 @@
 
 | 依赖项 | 版本要求 | 下载链接 |
 |--------|---------|---------|
-| **Forge** | 62.0.9（Minecraft 26.1 / Java 25） | [Download](https://files.minecraftforge.net/net/minecraftforge/forge/index_26.1.html) |
-| **YACL Reforged** | 3.9.7+26.1-26.1.2 | [作者源码](https://github.com/SvyatON/YACL-Reforged) |
+| **Forge** | 65.1.5（Minecraft 26.2 / Java 25） | [Download](https://files.minecraftforge.net/net/minecraftforge/forge/index_26.2.html) |
+| **YACL Reforged** | 3.9.7+26.2 | [作者源码](https://github.com/SvyatON/YACL-Reforged) |
 
 YACL Reforged 是保留 YACL API 的第三方 Forge 移植版。本分支依赖作者固定标签的源码构建产物，构建记录见 [Forge 构建说明](docs/FORGE-BUILD.md)。安装时将 AutoMessage 和对应的 `yacl-reforged` 两个 JAR 一起放入当前实例的 `mods/` 目录。
 
@@ -29,7 +29,7 @@ YACL Reforged 是保留 YACL API 的第三方 Forge 移植版。本分支依赖�
 
 ## 📥 安装说明
 
-1. 安装 Minecraft 26.1、Java 25、Forge 62.0.9 和对应的 YACL Reforged 版本
+1. 安装 Minecraft 26.2、Java 25、Forge 65.1.5 和对应的 YACL Reforged 版本
 2. 下载本模组 `.jar` 文件
 3. 将文件放入 `.minecraft/mods/` 文件夹
 4. 启动游戏，在 **Mods** 菜单中确认加载成功
@@ -38,7 +38,7 @@ YACL Reforged 是保留 YACL API 的第三方 Forge 移植版。本分支依赖�
 
 ## 🚀 使用指南
 
-### TXT 文本选择（Minecraft 26.1）
+### TXT 文本选择（Minecraft 26.2）
 
 首次启动会在**当前游戏实例根目录**创建空文件夹 `rss-automessage/`（与 `mods/`、`config/` 同级；启用版本隔离时位于该版本的游戏目录）。
 
@@ -163,7 +163,7 @@ A: 在配置界面关闭 "启用定时发送" 即可，不需要重启游戏。
 # English
 
 # RS's AutoMessage
-This branch targets **Forge 26.1** (`forge-26.1`). Open settings from the native Forge Mods screen.
+This branch targets **Forge 26.2** (`forge-26.2`). Open settings from the native Forge Mods screen.
 
 ## ✨ Features
 
@@ -180,8 +180,8 @@ This branch targets **Forge 26.1** (`forge-26.1`). Open settings from the native
 
 | Dependency | Version | Download |
 |------------|---------|----------|
-| **Forge** | 62.0.9 (Minecraft 26.1 / Java 25) | [Download](https://files.minecraftforge.net/net/minecraftforge/forge/index_26.1.html) |
-| **YACL Reforged** | 3.9.7+26.1-26.1.2 | [Author's source](https://github.com/SvyatON/YACL-Reforged) |
+| **Forge** | 65.1.5 (Minecraft 26.2 / Java 25) | [Download](https://files.minecraftforge.net/net/minecraftforge/forge/index_26.2.html) |
+| **YACL Reforged** | 3.9.7+26.2 | [Author's source](https://github.com/SvyatON/YACL-Reforged) |
 
 YACL Reforged is an unofficial Forge port preserving the YACL API. This branch uses a source build of the author's pinned tag; see [Forge build instructions](docs/FORGE-BUILD.md). Install both AutoMessage and the matching `yacl-reforged` JAR in your game instance's `mods/` folder.
 
@@ -189,7 +189,7 @@ YACL Reforged is an unofficial Forge port preserving the YACL API. This branch u
 
 ## 📥 Installation
 
-1. Install Minecraft 26.1, Java 25, Forge 62.0.9 and the matching YACL Reforged version
+1. Install Minecraft 26.2, Java 25, Forge 65.1.5 and the matching YACL Reforged version
 2. Download the mod `.jar` file
 3. Place the file into your `.minecraft/mods/` folder
 4. Launch the game and verify the mod is loaded in the **Mods** menu
@@ -198,7 +198,7 @@ YACL Reforged is an unofficial Forge port preserving the YACL API. This branch u
 
 ## 🚀 Usage Guide
 
-### TXT Text Selection (Minecraft 26.1)
+### TXT Text Selection (Minecraft 26.2)
 
 On first launch the mod creates an **empty** `rss-automessage/` folder beside `mods/` and `config/` in the current game instance. For isolated launcher profiles, use that profile's game directory.
 

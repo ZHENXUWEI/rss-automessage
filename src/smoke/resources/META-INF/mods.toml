@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[62,)"
+loaderVersion="[65,)"
 license="MIT"
 clientSideOnly=true
 [[mods]]
