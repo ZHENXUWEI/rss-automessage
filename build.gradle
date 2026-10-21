@@ -51,10 +51,10 @@ processResources {
     inputs.property 'version', project.version
     inputs.property 'minecraft_version', project.minecraft_version
     inputs.property 'neo_version', project.neo_version
-    inputs.property 'yacl_min_version', project.yacl_min_version
+    inputs.property 'yacl_version', project.yacl_version
     filesMatching('META-INF/neoforge.mods.toml') {
         expand(version: project.version, minecraft_version: project.minecraft_version,
-                neo_version: project.neo_version, yacl_min_version: project.yacl_min_version)
+                neo_version: project.neo_version, yacl_version: project.yacl_version)
     }
 }
 

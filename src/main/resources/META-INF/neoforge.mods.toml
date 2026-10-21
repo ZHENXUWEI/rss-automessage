@@ -27,6 +27,6 @@ side="CLIENT"
 [[dependencies.rss_automessage]]
 modId="yet_another_config_lib_v3"
 type="required"
-versionRange="[${yacl_min_version},)"
+versionRange="[${yacl_version}]"
 ordering="AFTER"
 side="CLIENT"
