@@ -6,11 +6,17 @@ allprojects {
             java.srcDirs = [project.file('src/smoke/java')]
             resources.srcDirs = [project.file('src/smoke/resources')]
             compileClasspath += project.sourceSets.main.output + project.sourceSets.main.compileClasspath
-            runtimeClasspath += project.sourceSets.main.output + project.sourceSets.main.runtimeClasspath
         }
         project.configurations.smokeImplementation.extendsFrom(project.configurations.implementation)
         project.configurations.smokeRuntimeOnly.extendsFrom(project.configurations.runtimeOnly)
         project.configurations.smokeAnnotationProcessor.extendsFrom(project.configurations.annotationProcessor)
+        def release = project.tasks.named('jarJar')
+        smoke.runtimeClasspath = project.files(smoke.output, release.flatMap { it.archiveFile },
+                project.configurations.runtimeClasspath.filter {
+                    it.name != 'yacl-reforged-' + project.yacl_version + '.jar'
+                })
+        assert !smoke.runtimeClasspath.files.any { it.name.startsWith('yacl-reforged-') }
+        println 'Forge bundled runtime: release JAR only; no standalone YACL or main development output'
         def directory = project.file('run/qa-forge-' + project.minecraft_version + '-' + System.currentTimeMillis())
         directory.mkdirs()
         new File(directory, 'config').mkdirs()

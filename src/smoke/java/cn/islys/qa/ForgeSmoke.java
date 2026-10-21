@@ -45,6 +45,13 @@ public final class ForgeSmoke {
             if (phase == 0) {
                 if (ticks < 20 || screen() == null || overlay() != null) return;
                 check(RSsAutoMessageClient.getInstance() != null, "client-only entry point initialized");
+                String modSource = RSsAutoMessageClient.class.getProtectionDomain().getCodeSource().getLocation().toString();
+                String yaclSource = dev.isxander.yacl3.api.YetAnotherConfigLib.class.getProtectionDomain().getCodeSource().getLocation().toString();
+                System.out.println("FORGE_SMOKE_ORIGINS mod=" + modSource + " yacl=" + yaclSource);
+                check(modSource.contains("rss-automessage-forge-") && modSource.contains(".jar"),
+                        "AutoMessage loaded from the release JAR");
+                check(yaclSource.contains("yacl-reforged-") && yaclSource.contains(".jar"),
+                        "YACL loaded from the embedded mod without standalone classpath dependency");
                 Path directory = MessageImporter.getTextLibrary().directory();
                 check(Files.isDirectory(directory), "TXT directory created");
                 check(MessageImporter.getTextLibrary().listFiles().isEmpty(), "TXT directory initially empty");
