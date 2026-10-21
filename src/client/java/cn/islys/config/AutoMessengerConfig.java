@@ -4,7 +4,7 @@ import cn.islys.RSsAutoMessageClient;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
-import net.neoforged.fml.loading.FMLPaths;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraft.resources.Identifier;
 import java.util.ArrayList;
 import java.util.Arrays;

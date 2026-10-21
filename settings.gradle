@@ -1,7 +1,6 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven { url = 'https://maven.neoforged.net/releases' }
     }
 }
-rootProject.name = 'rss-automessage-neoforge'
+rootProject.name = 'rss-automessage-forge'

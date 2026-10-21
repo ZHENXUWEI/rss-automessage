@@ -1,8 +1,8 @@
 package cn.islys.hud;
 
 import cn.islys.config.AutoMessengerConfig;
-import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.minecraftforge.client.event.AddGuiOverlayLayersEvent;
+import net.minecraftforge.client.gui.overlay.ForgeLayeredDraw;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -19,8 +19,9 @@ public class CountdownHud {
     // 原版聊天 HUD 元素的 ID
     private static final Identifier COUNTDOWN_HUD_ID = Identifier.fromNamespaceAndPath("rss-automessage", "countdown");
 
-    public void register(RegisterGuiLayersEvent event) {
-        event.registerBelow(VanillaGuiLayers.CHAT, COUNTDOWN_HUD_ID,
+    public void register(AddGuiOverlayLayersEvent event) {
+        event.getLayeredDraw().addBelow(ForgeLayeredDraw.POST_SLEEP_STACK,
+                COUNTDOWN_HUD_ID, ForgeLayeredDraw.CHAT_OVERLAY,
                 (GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) -> render(graphics));
     }
 

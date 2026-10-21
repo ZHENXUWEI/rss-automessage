@@ -1,4 +1,7 @@
+modLoader="javafml"
+loaderVersion="[${loader_version},)"
 license="MIT"
+clientSideOnly=true
 issueTrackerURL="https://github.com/ZHENXUWEI/rss-automessage/issues"
 
 [[mods]]
@@ -11,22 +14,22 @@ logoFile="assets/rss-automessage/icon.png"
 description="自动定时发送消息和自动回复模组，支持 YACL TXT 文本选择。"
 
 [[dependencies.rss_automessage]]
-modId="neoforge"
-type="required"
-versionRange="[${neo_version},)"
+modId="forge"
+mandatory=true
+versionRange="[${forge_version},)"
 ordering="NONE"
 side="CLIENT"
 
 [[dependencies.rss_automessage]]
 modId="minecraft"
-type="required"
+mandatory=true
 versionRange="[${minecraft_version}]"
 ordering="NONE"
 side="CLIENT"
 
 [[dependencies.rss_automessage]]
-modId="yet_another_config_lib_v3"
-type="required"
+modId="yacl_reforged"
+mandatory=true
 versionRange="[${yacl_version}]"
 ordering="AFTER"
 side="CLIENT"

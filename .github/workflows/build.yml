@@ -21,6 +21,8 @@ jobs:
           distribution: 'microsoft'
       - name: make gradle wrapper executable
         run: chmod +x ./gradlew
+      - name: prepare pinned YACL Reforged dependency
+        run: python3 scripts/prepare-yacl.py
       - name: build
         run: ./gradlew build
       - name: capture build artifacts

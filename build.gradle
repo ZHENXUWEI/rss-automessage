@@ -1,15 +1,22 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.148'
+    id 'net.minecraftforge.gradle' version '7.0.29'
 }
 
 version = project.mod_version
 group = project.maven_group
-base { archivesName = 'rss-automessage-neoforge' }
+base { archivesName = 'rss-automessage-forge' }
 
 repositories {
-    maven { name = 'Xander Maven'; url = 'https://maven.isxander.dev/releases' }
+    exclusiveContent {
+        forRepository { maven { url = layout.projectDirectory.dir('.gradle-agent/yacl-repository') } }
+        filter { includeModule('dev.svyaton', 'yacl-reforged') }
+    }
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+    mavenCentral()
 }
 
 java {
@@ -33,28 +40,40 @@ sourceSets {
     }
 }
 
-neoForge {
-    version = project.neo_version
+// Forge's generated development POM adds compile-time annotations to runtime.
+// YACL already provides this module via JarJar; keep only that copy at launch.
+configurations.matching {
+    it.name == 'runtimeClasspath' || it.name.endsWith('RuntimeClasspath')
+}.configureEach {
+    exclude group: 'org.jetbrains', module: 'annotations'
+}
+
+minecraft {
     runs {
-        client { client() }
-    }
-    mods {
-        rss_automessage { sourceSet sourceSets.main }
+        configureEach {
+            workingDir = layout.projectDirectory.dir('run')
+            systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
+        }
+        register('client')
     }
 }
 
 dependencies {
-    implementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+    implementation minecraft.dependency("net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}")
+    annotationProcessor "net.minecraftforge:eventbus-validator:${project.eventbus_validator_version}"
+    implementation "dev.svyaton:yacl-reforged:${project.yacl_version}"
 }
 
 processResources {
     inputs.property 'version', project.version
     inputs.property 'minecraft_version', project.minecraft_version
-    inputs.property 'neo_version', project.neo_version
+    inputs.property 'forge_version', project.forge_version
+    inputs.property 'loader_version', project.loader_version
     inputs.property 'yacl_version', project.yacl_version
-    filesMatching('META-INF/neoforge.mods.toml') {
+    filesMatching('META-INF/mods.toml') {
         expand(version: project.version, minecraft_version: project.minecraft_version,
-                neo_version: project.neo_version, yacl_version: project.yacl_version)
+                forge_version: project.forge_version, loader_version: project.loader_version,
+                yacl_version: project.yacl_version)
     }
 }
 

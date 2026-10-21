@@ -1,11 +1,14 @@
+modLoader="javafml"
+loaderVersion="[62,)"
 license="MIT"
+clientSideOnly=true
 [[mods]]
 modId="rss_automessage_qa"
 version="1"
 displayName="AutoMessage Disposable Smoke Test"
 [[dependencies.rss_automessage_qa]]
 modId="rss_automessage"
-type="required"
+mandatory=true
 versionRange="[1.1.5]"
 ordering="AFTER"
 side="CLIENT"

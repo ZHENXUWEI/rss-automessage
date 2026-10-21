@@ -2,7 +2,7 @@ package cn.islys.util;
 
 import cn.islys.config.AutoMessengerConfig;
 import cn.islys.RSsAutoMessageClient;
-import net.neoforged.fml.loading.FMLPaths;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraft.client.Minecraft;
 
 import java.io.IOException;

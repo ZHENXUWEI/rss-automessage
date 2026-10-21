@@ -6,23 +6,21 @@ import cn.islys.config.AutoMessengerConfig.MessageEntry;
 import cn.islys.hud.CountdownHud;
 import cn.islys.util.MessageImporter;
 import cn.islys.config.ModConfigScreen;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
-import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.minecraftforge.eventbus.api.listener.Priority;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.client.event.ClientChatReceivedEvent;
+import net.minecraftforge.client.event.RegisterClientCommandsEvent;
+import net.minecraftforge.client.event.AddGuiOverlayLayersEvent;
+import net.minecraftforge.client.ConfigScreenHandler.ConfigScreenFactory;
 import net.minecraft.client.Minecraft;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod(value = RSsAutoMessage.MOD_ID, dist = Dist.CLIENT)
+@Mod(RSsAutoMessage.MOD_ID)
 public class RSsAutoMessageClient {
 
     private static RSsAutoMessageClient instance;
@@ -39,20 +37,18 @@ public class RSsAutoMessageClient {
 
     private volatile boolean stopRequested = false;
 
-    public RSsAutoMessageClient(IEventBus modBus, ModContainer container) {
+    public RSsAutoMessageClient(FMLJavaModLoadingContext context) {
         instance = this;
         AutoMessengerConfig.load();
 
-        container.registerExtensionPoint(IConfigScreenFactory.class,
-                (IConfigScreenFactory) (modContainer, parent) -> ModConfigScreen.create(parent));
-        NeoForge.EVENT_BUS.addListener(ClientPlayerNetworkEvent.LoggingIn.class, event -> onServerJoined());
-        NeoForge.EVENT_BUS.addListener(ClientPlayerNetworkEvent.LoggingOut.class, event -> onServerLeft());
-        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::onChatReceived);
-        NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class,
-                event -> onClientTick(Minecraft.getInstance()));
-        NeoForge.EVENT_BUS.addListener(RegisterClientCommandsEvent.class,
-                event -> AutoMessageCommand.register(event.getDispatcher()));
-        modBus.addListener(countdownHud::register);
+        context.registerExtensionPoint(ConfigScreenFactory.class,
+                () -> new ConfigScreenFactory(ModConfigScreen::create));
+        ClientPlayerNetworkEvent.LoggingIn.BUS.addListener(event -> onServerJoined());
+        ClientPlayerNetworkEvent.LoggingOut.BUS.addListener(event -> onServerLeft());
+        ClientChatReceivedEvent.BUS.addListener(Priority.LOWEST, this::onChatReceived);
+        ClientTickEvent.Post.BUS.addListener(event -> onClientTick(Minecraft.getInstance()));
+        RegisterClientCommandsEvent.BUS.addListener(event -> AutoMessageCommand.register(event.getDispatcher()));
+        AddGuiOverlayLayersEvent.BUS.addListener(countdownHud::register);
 
         try {
             MessageImporter.getTextLibrary().ensureDirectory();
@@ -62,10 +58,8 @@ public class RSsAutoMessageClient {
     }
 
     private void onChatReceived(ClientChatReceivedEvent event) {
-        // Include player/disguised chat, as Fabric CHAT does, but exclude system messages.
-        if (!(event instanceof ClientChatReceivedEvent.System)) {
-            autoReply.onChatMessage(event.getMessage().getString());
-        }
+        // Forge posts this event for player and disguised chat, excluding system messages.
+        autoReply.onChatMessage(event.getMessage().getString());
     }
 
     private void onServerJoined() {

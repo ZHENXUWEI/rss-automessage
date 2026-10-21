@@ -9,13 +9,11 @@ import dev.isxander.yacl3.gui.YACLScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
-import net.neoforged.neoforge.common.NeoForge;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
+import net.minecraftforge.client.ConfigScreenHandler.ConfigScreenFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,8 +22,8 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
 /** Disposable, run-only integration mod. Never included in the shipped mod JAR. */
-@Mod(value = "rss_automessage_qa", dist = Dist.CLIENT)
-public final class NeoForgeSmoke {
+@Mod("rss_automessage_qa")
+public final class ForgeSmoke {
     private int phase;
     private int ticks;
     private int checks;
@@ -34,13 +32,15 @@ public final class NeoForgeSmoke {
     private Screen busyScreen;
     private boolean readPoolDrained;
 
-    public NeoForgeSmoke() {
-        NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, this::tick);
+    public ForgeSmoke() {
+        ClientTickEvent.Post.BUS.addListener(this::tick);
+        System.out.println("FORGE_SMOKE_REGISTERED bus=" + ClientTickEvent.Post.BUS + " listeners=" + ClientTickEvent.Post.BUS.hasListeners());
     }
 
     private void tick(ClientTickEvent.Post event) {
         try {
             ticks++;
+            if (ticks == 1) System.out.println("FORGE_SMOKE_FIRST_TICK");
             if (System.currentTimeMillis() > deadline) throw new AssertionError("Smoke timeout in phase " + phase);
             if (phase == 0) {
                 if (ticks < 20 || screen() == null || overlay() != null) return;
@@ -54,9 +54,9 @@ public final class NeoForgeSmoke {
                 Files.writeString(directory.resolve("alpha.txt"), "# alpha fixture\nalpha message\n/warp alpha\n");
                 Files.writeString(directory.resolve("beta.txt"), "beta message\n");
                 Files.writeString(directory.resolve("empty.txt"), "# only comments\n");
-                var container = ModList.get().getModContainerById("rss_automessage").orElseThrow();
-                var factory = container.getCustomExtension(IConfigScreenFactory.class).orElseThrow();
-                Screen settings = factory.createScreen(container, screen());
+                var container = ModList.getModContainerById("rss_automessage").orElseThrow();
+                var factory = container.getCustomExtension(ConfigScreenFactory.class).orElseThrow();
+                Screen settings = factory.screenFunction().apply(Minecraft.getInstance(), screen());
                 check(settings instanceof YACLScreen, "native Mods config factory creates YACL screen");
                 open(settings);
                 pressByKey("config.auto-messenger.txt.choose");
@@ -120,16 +120,16 @@ public final class NeoForgeSmoke {
                         "message snapshot persists on config reload");
                 String json = Files.readString(FMLPaths.CONFIGDIR.get().resolve("rss-automessage.json"));
                 check(json.contains("beta.txt") && json.contains("reloaded beta|msg"), "selected text saved to expected config path");
-                Files.writeString(FMLPaths.GAMEDIR.get().resolve("neo-smoke-result.json"),
+                Files.writeString(FMLPaths.GAMEDIR.get().resolve("forge-smoke-result.json"),
                         "{\"passed\":true,\"checks\":" + checks + "}");
-                System.out.println("NEOFORGE_SMOKE_PASS checks=" + checks);
+                System.out.println("FORGE_SMOKE_PASS checks=" + checks);
                 phase = 6;
                 Minecraft.getInstance().stop();
             }
         } catch (Throwable failure) {
-            System.err.println("NEOFORGE_SMOKE_FAIL phase=" + phase + " " + failure);
+            System.err.println("FORGE_SMOKE_FAIL phase=" + phase + " " + failure);
             failure.printStackTrace();
-            throw new RuntimeException("NeoForge smoke test failed", failure);
+            throw new RuntimeException("Forge smoke test failed", failure);
         }
     }
 
@@ -137,7 +137,7 @@ public final class NeoForgeSmoke {
     private void check(boolean condition, String message) {
         if (!condition) throw new AssertionError(message);
         checks++;
-        System.out.println("NEOFORGE_SMOKE_CHECK " + message);
+        System.out.println("FORGE_SMOKE_CHECK " + message);
     }
     private List<Option<?>> options(YACLScreen screen) {
         return screen.config.categories().stream().flatMap(category -> category.groups().stream())
