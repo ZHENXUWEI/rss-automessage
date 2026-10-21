@@ -37,9 +37,9 @@ Files: config/AutoMessengerConfig.java, util/MessageImporter.java, command/AutoM
 - [x] Run clean build and all 27 checks, inspect metadata/archive, review, update audit, package and commit.
 
 ## Task 6: Port and validate 26.3
-- [ ] Create neofor-26.3 from verified neofor-26.2; change native loader/YACL pins and MC constraints for 26.3.
-- [ ] Use Blaze3D.openPath(Path) for folder opening; inspect native event signatures and SDL-related compatibility.
-- [ ] Run clean build and all 27 checks, inspect metadata/archive, review, update audit, package and commit.
+- [x] Create neofor-26.3 from verified neofor-26.2; change native loader/YACL pins and MC constraints for 26.3.
+- [x] Use Blaze3D.openPath(Path) for folder opening; inspect native event signatures and SDL-related compatibility.
+- [x] Run clean build and all 27 checks, inspect metadata/archive, review, update audit, package and commit.
 
 ## Task 7: Publish and verify
 - [ ] Produce a three-artifact manifest with exact dependency pins, sizes, SHA256 and test/runtime scope. Confirm git diff --check and preserved promotional PNG.

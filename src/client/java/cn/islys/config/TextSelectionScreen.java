@@ -10,7 +10,7 @@ import dev.isxander.yacl3.api.OptionGroup;
 import dev.isxander.yacl3.api.YetAnotherConfigLib;
 import dev.isxander.yacl3.gui.YACLScreen;
 import net.minecraft.ChatFormatting;
-import net.minecraft.util.Util;
+import com.mojang.blaze3d.Blaze3D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -150,7 +150,7 @@ public final class TextSelectionScreen {
     private void openFolder() {
         try {
             library.ensureDirectory();
-            Util.getPlatform().openPath(library.directory());
+            Blaze3D.openPath(library.directory());
         } catch (IOException | RuntimeException e) {
             status = text("folder_failed", e.getMessage()).withStyle(ChatFormatting.RED);
             show();

@@ -2,7 +2,7 @@
 # **中文版**
 
 # RS's AutoMessage
-此分支为 **NeoForge 26.2** 版（`neofor-26.2`）。配置入口使用 NeoForge 原生 Mods 页面，无需 Fabric API 或 Mod Menu。
+此分支为 **NeoForge 26.3** 版（`neofor-26.3`）。配置入口使用 NeoForge 原生 Mods 页面，无需 Fabric API 或 Mod Menu。
 
 ## ✨ 功能特性
 
@@ -20,14 +20,14 @@
 
 | 依赖项 | 版本要求 | 下载链接 |
 |--------|---------|---------|
-| **NeoForge** | 26.2.0.93（Minecraft 26.2 / Java 25） | [Download](https://neoforged.net/) |
-| **YACL NeoForge** | 3.9.7+26.2-neoforge | [Download](https://modrinth.com/mod/yacl/versions) |
+| **NeoForge** | 26.3.0.90（Minecraft 26.3 / Java 25） | [Download](https://neoforged.net/) |
+| **YACL NeoForge** | 3.9.7+26.3-neoforge | [Download](https://modrinth.com/mod/yacl/versions) |
 
 ---
 
 ## 📥 安装说明
 
-1. 安装 Minecraft 26.2、Java 25、NeoForge 26.2.0.93 和对应的 YACL NeoForge 版本
+1. 安装 Minecraft 26.3、Java 25、NeoForge 26.3.0.90 和对应的 YACL NeoForge 版本
 2. 下载本模组 `.jar` 文件
 3. 将文件放入 `.minecraft/mods/` 文件夹
 4. 启动游戏，在 **Mods** 菜单中确认加载成功
@@ -36,7 +36,7 @@
 
 ## 🚀 使用指南
 
-### TXT 文本选择（Minecraft 26.2）
+### TXT 文本选择（Minecraft 26.3）
 
 首次启动会在**当前游戏实例根目录**创建空文件夹 `rss-automessage/`（与 `mods/`、`config/` 同级；启用版本隔离时位于该版本的游戏目录）。
 
@@ -161,7 +161,7 @@ A: 在配置界面关闭 "启用定时发送" 即可，不需要重启游戏。
 # English
 
 # RS's AutoMessage
-This branch targets **NeoForge 26.2** (`neofor-26.2`). Open settings from the native NeoForge Mods screen.
+This branch targets **NeoForge 26.3** (`neofor-26.3`). Open settings from the native NeoForge Mods screen.
 
 ## ✨ Features
 
@@ -178,14 +178,14 @@ This branch targets **NeoForge 26.2** (`neofor-26.2`). Open settings from the na
 
 | Dependency | Version | Download |
 |------------|---------|----------|
-| **NeoForge** | 26.2.0.93 (Minecraft 26.2 / Java 25) | [Download](https://neoforged.net/) |
-| **YACL NeoForge** | 3.9.7+26.2-neoforge | [Download](https://modrinth.com/mod/yacl/versions) |
+| **NeoForge** | 26.3.0.90 (Minecraft 26.3 / Java 25) | [Download](https://neoforged.net/) |
+| **YACL NeoForge** | 3.9.7+26.3-neoforge | [Download](https://modrinth.com/mod/yacl/versions) |
 
 ---
 
 ## 📥 Installation
 
-1. Install Minecraft 26.2, Java 25, NeoForge 26.2.0.93 and the matching YACL NeoForge version
+1. Install Minecraft 26.3, Java 25, NeoForge 26.3.0.90 and the matching YACL NeoForge version
 2. Download the mod `.jar` file
 3. Place the file into your `.minecraft/mods/` folder
 4. Launch the game and verify the mod is loaded in the **Mods** menu
@@ -194,7 +194,7 @@ This branch targets **NeoForge 26.2** (`neofor-26.2`). Open settings from the na
 
 ## 🚀 Usage Guide
 
-### TXT Text Selection (Minecraft 26.2)
+### TXT Text Selection (Minecraft 26.3)
 
 On first launch the mod creates an **empty** `rss-automessage/` folder beside `mods/` and `config/` in the current game instance. For isolated launcher profiles, use that profile's game directory.
 
