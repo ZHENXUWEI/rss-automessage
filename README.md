@@ -21,15 +21,15 @@
 | 依赖项 | 版本要求 | 下载链接 |
 |--------|---------|---------|
 | **Forge** | 66.0.13（Minecraft 26.3 / Java 25） | [Download](https://files.minecraftforge.net/net/minecraftforge/forge/index_26.3.html) |
-| **YACL Reforged** | 3.9.7+26.3 | [作者源码](https://github.com/SvyatON/YACL-Reforged) |
+| **YACL Reforged（已内置）** | 3.9.7+26.3 | 无需单独下载 |
 
-YACL Reforged 是保留 YACL API 的第三方 Forge 移植版。本分支依赖作者固定标签的源码构建产物，构建记录见 [Forge 构建说明](docs/FORGE-BUILD.md)。安装时将 AutoMessage 和对应的 `yacl-reforged` 两个 JAR 一起放入当前实例的 `mods/` 目录。
+YACL Reforged 是保留 YACL API 的第三方 Forge 移植版，已通过 Forge Jar-in-Jar 完整内置。玩家只需将 AutoMessage 的一个 JAR 放入当前实例的 `mods/` 目录。原作者许可证、对应源码和构建来源均保留，详见 [Forge 构建说明](docs/FORGE-BUILD.md)。
 
 ---
 
 ## 📥 安装说明
 
-1. 安装 Minecraft 26.3、Java 25、Forge 66.0.13 和对应的 YACL Reforged 版本
+1. 安装 Minecraft 26.3、Java 25、Forge 66.0.13
 2. 下载本模组 `.jar` 文件
 3. 将文件放入 `.minecraft/mods/` 文件夹
 4. 启动游戏，在 **Mods** 菜单中确认加载成功
@@ -181,15 +181,15 @@ This branch targets **Forge 26.3** (`forge-26.3`). Open settings from the native
 | Dependency | Version | Download |
 |------------|---------|----------|
 | **Forge** | 66.0.13 (Minecraft 26.3 / Java 25) | [Download](https://files.minecraftforge.net/net/minecraftforge/forge/index_26.3.html) |
-| **YACL Reforged** | 3.9.7+26.3 | [Author's source](https://github.com/SvyatON/YACL-Reforged) |
+| **YACL Reforged (included)** | 3.9.7+26.3 | No separate download |
 
-YACL Reforged is an unofficial Forge port preserving the YACL API. This branch uses a source build of the author's pinned tag; see [Forge build instructions](docs/FORGE-BUILD.md). Install both AutoMessage and the matching `yacl-reforged` JAR in your game instance's `mods/` folder.
+YACL Reforged is an unofficial Forge port preserving the YACL API, included unchanged through Forge Jar-in-Jar. Players install only the AutoMessage release JAR in their game instance's `mods/` folder. Original licenses, corresponding sources and build provenance are retained; see [Forge build instructions](docs/FORGE-BUILD.md).
 
 ---
 
 ## 📥 Installation
 
-1. Install Minecraft 26.3, Java 25, Forge 66.0.13 and the matching YACL Reforged version
+1. Install Minecraft 26.3, Java 25 and Forge 66.0.13
 2. Download the mod `.jar` file
 3. Place the file into your `.minecraft/mods/` folder
 4. Launch the game and verify the mod is loaded in the **Mods** menu
