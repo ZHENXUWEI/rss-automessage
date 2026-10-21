@@ -5,16 +5,25 @@ import cn.islys.config.AutoMessengerConfig;
 import cn.islys.config.AutoMessengerConfig.MessageEntry;
 import cn.islys.hud.CountdownHud;
 import cn.islys.util.MessageImporter;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import cn.islys.config.ModConfigScreen;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.minecraft.client.Minecraft;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class RSsAutoMessageClient implements ClientModInitializer {
+@Mod(value = RSsAutoMessage.MOD_ID, dist = Dist.CLIENT)
+public class RSsAutoMessageClient {
 
     private static RSsAutoMessageClient instance;
     private final MessageScheduler scheduler = new MessageScheduler();
@@ -30,37 +39,32 @@ public class RSsAutoMessageClient implements ClientModInitializer {
 
     private volatile boolean stopRequested = false;
 
-    @Override
-    public void onInitializeClient() {
+    public RSsAutoMessageClient(IEventBus modBus, ModContainer container) {
         instance = this;
-
         AutoMessengerConfig.load();
 
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            onServerJoined();
-        });
-
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            onServerLeft();
-        });
-
-        // 26.1 中 ClientReceiveMessageEvents.GAME 改为 CHAT
-        ClientReceiveMessageEvents.CHAT.register((message, signedMessage, sender, params, receptionTimestamp) -> {
-            autoReply.onChatMessage(message.getString());
-        });
-
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            onClientTick(client);
-        });
-
-        countdownHud.register();
-
-        AutoMessageCommand.register();
+        container.registerExtensionPoint(IConfigScreenFactory.class,
+                (IConfigScreenFactory) (modContainer, parent) -> ModConfigScreen.create(parent));
+        NeoForge.EVENT_BUS.addListener(ClientPlayerNetworkEvent.LoggingIn.class, event -> onServerJoined());
+        NeoForge.EVENT_BUS.addListener(ClientPlayerNetworkEvent.LoggingOut.class, event -> onServerLeft());
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::onChatReceived);
+        NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class,
+                event -> onClientTick(Minecraft.getInstance()));
+        NeoForge.EVENT_BUS.addListener(RegisterClientCommandsEvent.class,
+                event -> AutoMessageCommand.register(event.getDispatcher()));
+        modBus.addListener(countdownHud::register);
 
         try {
             MessageImporter.getTextLibrary().ensureDirectory();
         } catch (java.io.IOException e) {
             RSsAutoMessage.LOGGER.error("Could not create TXT directory", e);
+        }
+    }
+
+    private void onChatReceived(ClientChatReceivedEvent event) {
+        // Include player/disguised chat, as Fabric CHAT does, but exclude system messages.
+        if (!(event instanceof ClientChatReceivedEvent.System)) {
+            autoReply.onChatMessage(event.getMessage().getString());
         }
     }
 

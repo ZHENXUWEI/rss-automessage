@@ -1,20 +1,30 @@
-# Dependency audit — branch 26.1
+# NeoForge build audit — 2026-10-21
 
-| Component | Version |
+| Component | Pinned version |
 |---|---|
-| Supported Minecraft | >=26.1 <26.2 |
-| Compile Minecraft | 26.1 |
+| Git branch | neofor-26.1 |
+| Minecraft | exactly 26.1 |
 | Java | 25 |
-| Fabric Loader (build / runtime minimum) | 0.19.1 / 0.18.4 |
-| Fabric API | 0.145.4+26.1.1 |
-| Mod Menu | 18.0.0 |
-| YACL | 3.9.2+26.1-fabric |
-| Loom / Gradle | 1.15.5 / 9.2.1 |
+| NeoForge | 26.1.0.19-beta |
+| YACL | dev.isxander:yet-another-config-lib:3.9.7+26.1-neoforge |
+| ModDevGradle / Gradle | 2.0.148 / 9.2.1 |
+| Mod version / NeoForge registration ID | 1.1.5 / rss_automessage |
 
-Dependency variants must match the running Minecraft version. Build pins are verified combinations; the runtime metadata specifies tested minimums. The root TXT folder and YACL selector are ported from commit 91e03df. Promotional icon720-450.png remains on disk and is excluded from binary and source archives.
+The official base-Minecraft-26.1 MDK still pins a beta NeoForge release. This build targets 26.1 exactly; it does not declare compatibility with 26.1.1/26.1.2. Existing resource namespace, TXT directory and config file remain rss-automessage. Use the native NeoForge Mods configuration button and install the matching NeoForge YACL JAR separately.
 
-Java-only TXT and message-editor regression checks run under Gradle check. A successful build verifies compilation and packaging, not in-game interaction.
+## Verification
 
-Verified locally on 2026-10-20: clean Gradle build; 16 TXT checks and 11 message-editor checks passed. Archive inspected; JAR size 116872 bytes. In-game interactions remain untested.
+Clean Gradle build passed using JDK 25, including 16 TXT-library and 11 message-editor checks. Actual isolated client startup passed with 19 integration checks: native Mods configuration factory, YACL settings and TXT selector, initial empty directory, message/command import, switching, explicit reload, empty-file protection, leaving during an async read, rebuilt-settings save and filename/message persistence after config reload. Automatic sending/replies were disabled in the isolated profile. World/server chat, scheduled delivery and in-world HUD rendering have not been manually tested.
 
-Main-menu legacy file-operation feedback uses a native SystemToast; in-world feedback uses addClientSystemMessage. This avoids ChatListener dropping messages without a player.
+Run the optional integration probe with `./gradlew --init-script scripts/neoforge-smoke.init.gradle runClient` (Java 25). It creates a new isolated run/qa-neofor-* directory, prints NEOFORGE_SMOKE_PASS checks=19 and writes neo-smoke-result.json there, then closes its own client. The probe source set is only added by this script; it is excluded from release binary/source archives and ordinary CI builds.
+
+Binary JAR: 114412 bytes; SHA256 1e617206470348e0b0284c0f548c2c2408293dcee4200bee8e14e9d3190d9880. Both binary/source archives were inspected. NeoForge TOML and Java major 69 are correct; no Fabric metadata/API references, Mod Menu entry point, QA/test classes, nested third-party JARs or promotional image. Original icon720-450.png remains on disk. Packaged Chinese metadata was compared against UTF-8 source and matched.
+
+A local-only download bridge was needed because this machine intermittently resolves the NeoForge Maven host incorrectly. It downloaded unmodified bytes over certificate-validated official HTTPS; release build files retain the official HTTPS repositories. This workaround is outside version control.
+
+## Primary references
+
+- [Official 26.1 MDK](https://github.com/NeoForgeMDKs/MDK-26.1-ModDevGradle)
+- [NeoForge client events](https://github.com/neoforged/NeoForge/tree/26.1.x/src/client/java/net/neoforged/neoforge/client/event)
+- [NeoForge config screen extension](https://github.com/neoforged/NeoForge/blob/26.1.x/src/client/java/net/neoforged/neoforge/client/gui/IConfigScreenFactory.java)
+- [YACL author Maven](https://maven.isxander.dev/releases/dev/isxander/yet-another-config-lib/3.9.7+26.1-neoforge/)

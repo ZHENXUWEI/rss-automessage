@@ -2,13 +2,15 @@
 # **中文版**
 
 # RS's AutoMessage
+此分支为 **NeoForge 26.1** 版（`neofor-26.1`）。配置入口使用 NeoForge 原生 Mods 页面，无需 Fabric API 或 Mod Menu。NeoForge 26.1 官方基础版开发包仍标记为 beta。
+
 ## ✨ 功能特性
 
 - 🕐 **定时批量发送** - 按设定间隔一次性发送消息列表中的所有内容
 - 💬 **智能自动回复** - 检测关键词自动回复，支持多关键词匹配
 - 🎮 **指令支持** - 支持发送 Minecraft 指令（自动识别 `/` 前缀）
 - ⏱️ **倒计时显示** - 屏幕左下角实时显示下次发送剩余时间
-- ⚙️ **可视化配置** - 内置 Mod Menu + YACL 配置界面，无需编辑配置文件
+- ⚙️ **可视化配置** - NeoForge Mods + YACL 配置界面，无需编辑配置文件
 - 🌍 **多语言支持** - 支持简体中文与英文
 
 
@@ -18,16 +20,14 @@
 
 | 依赖项 | 版本要求 | 下载链接 |
 |--------|---------|---------|
-| **Fabric Loader** | ≥0.18.4 | [Download](https://fabricmc.net/use/installer/) |
-| **Fabric API** | ≥0.145.4，Minecraft 26.1 版本 | [Download](https://curseforge.com/minecraft/mc-mods/fabric-api) |
-| **Mod Menu**| ≥18.0.0 | [Download](https://curseforge.com/minecraft/mc-mods/modmenu) |
-| **YACL** | ≥3.9.2 | [Download](https://curseforge.com/minecraft/mc-mods/yacl) |
+| **NeoForge** | 26.1.0.19-beta（Minecraft 26.1 / Java 25） | [Download](https://neoforged.net/) |
+| **YACL NeoForge** | 3.9.7+26.1-neoforge | [Download](https://modrinth.com/mod/yacl/versions) |
 
 ---
 
 ## 📥 安装说明
 
-1. 确保已安装 [Fabric Loader](https://fabricmc.net/use/installer/) 0.18.4 或更高版本（Minecraft 26.1 / Java 25）
+1. 安装 Minecraft 26.1、Java 25、NeoForge 26.1.0.19-beta 和对应的 YACL NeoForge 版本
 2. 下载本模组 `.jar` 文件
 3. 将文件放入 `.minecraft/mods/` 文件夹
 4. 启动游戏，在 **Mods** 菜单中确认加载成功
@@ -161,13 +161,15 @@ A: 在配置界面关闭 "启用定时发送" 即可，不需要重启游戏。
 # English
 
 # RS's AutoMessage
+This branch targets **NeoForge 26.1** (`neofor-26.1`). Open settings from the native NeoForge Mods screen. The official base-26.1 development loader is marked beta.
+
 ## ✨ Features
 
 - 🕐 **Scheduled Batch Sending** - Send all messages in the list at once at set intervals
 - 💬 **Smart Auto Reply** - Automatically reply when keywords are detected, supports multiple keyword matching
 - 🎮 **Command Support** - Supports sending Minecraft commands (auto-detects `/` prefix)
 - ⏱️ **Countdown Display** - Real-time countdown timer displayed in the bottom-left corner
-- ⚙️ **Visual Configuration** - Built-in Mod Menu + YACL configuration interface, no need to edit config files
+- ⚙️ **Visual Configuration** - NeoForge Mods + YACL configuration interface, no need to edit config files
 - 🌍 **Multi-language Support** - Supports Simplified Chinese and English
 
 ---
@@ -176,16 +178,14 @@ A: 在配置界面关闭 "启用定时发送" 即可，不需要重启游戏。
 
 | Dependency | Version | Download |
 |------------|---------|----------|
-| **Fabric Loader** | ≥0.18.4 | [Download](https://fabricmc.net/use/installer/) |
-| **Fabric API** | ≥0.145.4 for Minecraft 26.1 | [Download](https://curseforge.com/minecraft/mc-mods/fabric-api) |
-| **Mod Menu**| ≥18.0.0 | [Download](https://curseforge.com/minecraft/mc-mods/modmenu) |
-| **YACL** | ≥3.9.2 | [Download](https://curseforge.com/minecraft/mc-mods/yacl) |
+| **NeoForge** | 26.1.0.19-beta (Minecraft 26.1 / Java 25) | [Download](https://neoforged.net/) |
+| **YACL NeoForge** | 3.9.7+26.1-neoforge | [Download](https://modrinth.com/mod/yacl/versions) |
 
 ---
 
 ## 📥 Installation
 
-1. Ensure [Fabric Loader](https://fabricmc.net/use/installer/) 0.18.4 or higher is installed (Minecraft 26.1 / Java 25)
+1. Install Minecraft 26.1, Java 25, NeoForge 26.1.0.19-beta and the matching YACL NeoForge version
 2. Download the mod `.jar` file
 3. Place the file into your `.minecraft/mods/` folder
 4. Launch the game and verify the mod is loaded in the **Mods** menu

@@ -1,0 +1,24 @@
+// Run with: ./gradlew --init-script scripts/neoforge-smoke.init.gradle runClient
+// The probe is a separate dev mod and is never part of the release JAR.
+allprojects {
+    afterEvaluate { project ->
+        def smoke = project.sourceSets.create('neoSmoke') {
+            java.srcDirs = [project.file('src/smoke/java')]
+            resources.srcDirs = [project.file('src/smoke/resources')]
+            compileClasspath += project.sourceSets.main.output + project.sourceSets.main.compileClasspath
+            runtimeClasspath += project.sourceSets.main.output + project.sourceSets.main.runtimeClasspath
+        }
+        project.neoForge.mods.create('rss_automessage_qa') { sourceSet smoke }
+        def directory = project.file('run/qa-neofor-' + project.minecraft_version + '-' + System.currentTimeMillis())
+        directory.mkdirs()
+        new File(directory, 'config').mkdirs()
+        new File(directory, 'options.txt').setText('lang:zh_cn\nguiScale:2\nfullscreen:false\nrenderDistance:4\nsimulationDistance:5\nmaxFps:30\nsoundCategory_master:0.0\n', 'UTF-8')
+        new File(directory, 'config/rss-automessage.json').setText(
+                '{"enableScheduledMessages":false,"sendOnJoin":false,"enableAutoReply":false,"scheduledMessageList":[],"selectedTextFile":""}', 'UTF-8')
+        println 'NeoForge smoke game directory: ' + directory
+        project.neoForge.runs.named('client') {
+            gameDirectory = directory
+            programArguments.addAll '--width', '1280', '--height', '720', '--username', 'AutoMessageQA'
+        }
+    }
+}

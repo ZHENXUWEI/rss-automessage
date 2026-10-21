@@ -4,7 +4,7 @@ import cn.islys.RSsAutoMessageClient;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
-import net.fabricmc.loader.api.FabricLoader;
+import net.neoforged.fml.loading.FMLPaths;
 import net.minecraft.resources.Identifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +15,7 @@ public class AutoMessengerConfig {
             ConfigClassHandler.createBuilder(AutoMessengerConfig.class)
                     .id(Identifier.fromNamespaceAndPath("rss-automessage", "config"))
                     .serializer(config -> GsonConfigSerializerBuilder.create(config)
-                            .setPath(FabricLoader.getInstance().getConfigDir().resolve("rss-automessage.json"))
+                            .setPath(FMLPaths.CONFIGDIR.get().resolve("rss-automessage.json"))
                             .build())
                     .build();
 

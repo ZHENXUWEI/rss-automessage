@@ -2,7 +2,7 @@ package cn.islys.util;
 
 import cn.islys.config.AutoMessengerConfig;
 import cn.islys.RSsAutoMessageClient;
-import net.fabricmc.loader.api.FabricLoader;
+import net.neoforged.fml.loading.FMLPaths;
 import net.minecraft.client.Minecraft;
 
 import java.io.IOException;
@@ -14,10 +14,10 @@ import java.util.List;
 
 public class MessageImporter {
 
-    private static final Path CONFIG_DIR = FabricLoader.getInstance().getConfigDir()
+    private static final Path CONFIG_DIR = FMLPaths.CONFIGDIR.get()
             .resolve("rss-automessage");
     private static final Path DEFAULT_FILE = CONFIG_DIR.resolve("messages.txt");
-    private static final TextFileLibrary TEXT_LIBRARY = new TextFileLibrary(FabricLoader.getInstance().getGameDir());
+    private static final TextFileLibrary TEXT_LIBRARY = new TextFileLibrary(FMLPaths.GAMEDIR.get());
 
     public static TextFileLibrary getTextLibrary() {
         return TEXT_LIBRARY;

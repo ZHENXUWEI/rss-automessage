@@ -1,7 +1,8 @@
 package cn.islys.hud;
 
 import cn.islys.config.AutoMessengerConfig;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -16,18 +17,11 @@ public class CountdownHud {
     private static final int COLOR_URGENT = 0xFFFF0000;
 
     // 原版聊天 HUD 元素的 ID
-    private static final Identifier CHAT_HUD_ID = Identifier.withDefaultNamespace("chat");
     private static final Identifier COUNTDOWN_HUD_ID = Identifier.fromNamespaceAndPath("rss-automessage", "countdown");
 
-    public void register() {
-        // ✅ 26.1 正确的 HUD API
-        HudElementRegistry.attachElementBefore(
-                CHAT_HUD_ID,
-                COUNTDOWN_HUD_ID,
-                (GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) -> {
-                    render(graphics);
-                }
-        );
+    public void register(RegisterGuiLayersEvent event) {
+        event.registerBelow(VanillaGuiLayers.CHAT, COUNTDOWN_HUD_ID,
+                (GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) -> render(graphics));
     }
 
     public void updateCountdown(int ms) {

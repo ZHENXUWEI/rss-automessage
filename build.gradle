@@ -1,131 +1,85 @@
 plugins {
-	id 'net.fabricmc.fabric-loom' version "${loom_version}"
-	id 'maven-publish'
+    id 'java-library'
+    id 'maven-publish'
+    id 'net.neoforged.moddev' version '2.0.148'
 }
 
 version = project.mod_version
 group = project.maven_group
-
-base {
-	archivesName = project.archives_base_name
-}
+base { archivesName = 'rss-automessage-neoforge' }
 
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
-    // Mod Menu Maven
-    maven {
-        name 'TerraformersMC'
-        url 'https://maven.terraformersmc.com/'
-    }
+    maven { name = 'Xander Maven'; url = 'https://maven.isxander.dev/releases' }
+}
 
-    maven {
-        name 'Xander Maven'
-        url 'https://maven.isxander.dev/releases'
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 25
+    options.encoding = 'UTF-8'
+}
+
+sourceSets {
+    main {
+        java.srcDir('src/client/java')
+        resources.exclude('assets/rss-automessage/icon720-450.png')
+    }
+    txtTest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
     }
 }
 
-loom {
-	splitEnvironmentSourceSets()
-
-	mods {
-		"rss-automessage" {
-			sourceSet sourceSets.main
-			sourceSet sourceSets.client
-		}
-	}
-
+neoForge {
+    version = project.neo_version
+    runs {
+        client { client() }
+    }
+    mods {
+        rss_automessage { sourceSet sourceSets.main }
+    }
 }
 
 dependencies {
-	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
-    // YACL - 配置文件与GUI
-    implementation("dev.isxander:yet-another-config-lib:${project.yacl_version}")
-    // Mod Menu - 配置入口
-    implementation("com.terraformersmc:modmenu:${project.modmenu_version}")
+    implementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 }
 
-// Exercise real TXT files without starting Minecraft or adding a test-framework dependency.
-sourceSets {
-    main.resources.exclude('assets/rss-automessage/icon720-450.png')
-    txtTest {
-        compileClasspath += sourceSets.client.output
-        runtimeClasspath += sourceSets.client.output
+processResources {
+    inputs.property 'version', project.version
+    inputs.property 'minecraft_version', project.minecraft_version
+    inputs.property 'neo_version', project.neo_version
+    inputs.property 'yacl_min_version', project.yacl_min_version
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand(version: project.version, minecraft_version: project.minecraft_version,
+                neo_version: project.neo_version, yacl_min_version: project.yacl_min_version)
     }
 }
 
 tasks.register('txtLibraryTest', JavaExec) {
     group = 'verification'
-    description = 'Checks TXT directory creation, scanning and parsing using temporary files.'
     classpath = sourceSets.txtTest.runtimeClasspath
     mainClass = 'cn.islys.util.TextFileLibraryTest'
 }
 
 tasks.register('messageListEditorTest', JavaExec) {
     group = 'verification'
-    description = 'Checks repeated edits preserve hidden messages without duplication.'
     classpath = sourceSets.txtTest.runtimeClasspath
     mainClass = 'cn.islys.config.MessageListEditorTest'
 }
 
 tasks.named('check') {
-    dependsOn tasks.named('txtLibraryTest')
-    dependsOn tasks.named('messageListEditorTest')
-}
-
-processResources {
-	inputs.property "version", project.version
-
-	filesMatching("fabric.mod.json") {
-		expand "version": inputs.properties.version
-	}
-}
-
-tasks.withType(JavaCompile).configureEach {
-	it.options.release = 25
-}
-
-java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
-	withSourcesJar()
-
-	sourceCompatibility = JavaVersion.VERSION_25
-	targetCompatibility = JavaVersion.VERSION_25
+    dependsOn tasks.named('txtLibraryTest'), tasks.named('messageListEditorTest')
 }
 
 jar {
-	inputs.property "archivesName", project.base.archivesName
-
-	from("LICENSE") {
-		rename { "${it}_${inputs.properties.archivesName}"}
-	}
+    from('LICENSE') { rename { "${it}_${project.base.archivesName.get()}" } }
 }
 
-// configure the maven publication
 publishing {
-	publications {
-		create("mavenJava", MavenPublication) {
-			artifactId = project.archives_base_name
-			from components.java
-		}
-	}
-
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
-	}
+    publications {
+        mavenJava(MavenPublication) { from components.java }
+    }
 }
