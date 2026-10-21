@@ -2,7 +2,7 @@
 # **中文版**
 
 # RS's AutoMessage
-此分支为 **NeoForge 26.1** 版（`neofor-26.1`）。配置入口使用 NeoForge 原生 Mods 页面，无需 Fabric API 或 Mod Menu。NeoForge 26.1 官方基础版开发包仍标记为 beta。
+此分支为 **Forge 26.1** 版（`forge-26.1`）。配置入口使用 Forge 原生 Mods 页面。
 
 ## ✨ 功能特性
 
@@ -10,7 +10,7 @@
 - 💬 **智能自动回复** - 检测关键词自动回复，支持多关键词匹配
 - 🎮 **指令支持** - 支持发送 Minecraft 指令（自动识别 `/` 前缀）
 - ⏱️ **倒计时显示** - 屏幕左下角实时显示下次发送剩余时间
-- ⚙️ **可视化配置** - NeoForge Mods + YACL 配置界面，无需编辑配置文件
+- ⚙️ **可视化配置** - Forge Mods + YACL 配置界面，无需编辑配置文件
 - 🌍 **多语言支持** - 支持简体中文与英文
 
 
@@ -20,14 +20,16 @@
 
 | 依赖项 | 版本要求 | 下载链接 |
 |--------|---------|---------|
-| **NeoForge** | 26.1.0.19-beta（Minecraft 26.1 / Java 25） | [Download](https://neoforged.net/) |
-| **YACL NeoForge** | 3.9.7+26.1-neoforge | [Download](https://modrinth.com/mod/yacl/versions) |
+| **Forge** | 62.0.9（Minecraft 26.1 / Java 25） | [Download](https://files.minecraftforge.net/net/minecraftforge/forge/index_26.1.html) |
+| **YACL Reforged** | 3.9.7+26.1-26.1.2 | [作者源码](https://github.com/SvyatON/YACL-Reforged) |
+
+YACL Reforged 是保留 YACL API 的第三方 Forge 移植版。本分支依赖作者固定标签的源码构建产物，构建记录见 [Forge 构建说明](docs/FORGE-BUILD.md)。安装时将 AutoMessage 和对应的 `yacl-reforged` 两个 JAR 一起放入当前实例的 `mods/` 目录。
 
 ---
 
 ## 📥 安装说明
 
-1. 安装 Minecraft 26.1、Java 25、NeoForge 26.1.0.19-beta 和对应的 YACL NeoForge 版本
+1. 安装 Minecraft 26.1、Java 25、Forge 62.0.9 和对应的 YACL Reforged 版本
 2. 下载本模组 `.jar` 文件
 3. 将文件放入 `.minecraft/mods/` 文件夹
 4. 启动游戏，在 **Mods** 菜单中确认加载成功
@@ -161,7 +163,7 @@ A: 在配置界面关闭 "启用定时发送" 即可，不需要重启游戏。
 # English
 
 # RS's AutoMessage
-This branch targets **NeoForge 26.1** (`neofor-26.1`). Open settings from the native NeoForge Mods screen. The official base-26.1 development loader is marked beta.
+This branch targets **Forge 26.1** (`forge-26.1`). Open settings from the native Forge Mods screen.
 
 ## ✨ Features
 
@@ -169,7 +171,7 @@ This branch targets **NeoForge 26.1** (`neofor-26.1`). Open settings from the na
 - 💬 **Smart Auto Reply** - Automatically reply when keywords are detected, supports multiple keyword matching
 - 🎮 **Command Support** - Supports sending Minecraft commands (auto-detects `/` prefix)
 - ⏱️ **Countdown Display** - Real-time countdown timer displayed in the bottom-left corner
-- ⚙️ **Visual Configuration** - NeoForge Mods + YACL configuration interface, no need to edit config files
+- ⚙️ **Visual Configuration** - Forge Mods + YACL configuration interface, no need to edit config files
 - 🌍 **Multi-language Support** - Supports Simplified Chinese and English
 
 ---
@@ -178,14 +180,16 @@ This branch targets **NeoForge 26.1** (`neofor-26.1`). Open settings from the na
 
 | Dependency | Version | Download |
 |------------|---------|----------|
-| **NeoForge** | 26.1.0.19-beta (Minecraft 26.1 / Java 25) | [Download](https://neoforged.net/) |
-| **YACL NeoForge** | 3.9.7+26.1-neoforge | [Download](https://modrinth.com/mod/yacl/versions) |
+| **Forge** | 62.0.9 (Minecraft 26.1 / Java 25) | [Download](https://files.minecraftforge.net/net/minecraftforge/forge/index_26.1.html) |
+| **YACL Reforged** | 3.9.7+26.1-26.1.2 | [Author's source](https://github.com/SvyatON/YACL-Reforged) |
+
+YACL Reforged is an unofficial Forge port preserving the YACL API. This branch uses a source build of the author's pinned tag; see [Forge build instructions](docs/FORGE-BUILD.md). Install both AutoMessage and the matching `yacl-reforged` JAR in your game instance's `mods/` folder.
 
 ---
 
 ## 📥 Installation
 
-1. Install Minecraft 26.1, Java 25, NeoForge 26.1.0.19-beta and the matching YACL NeoForge version
+1. Install Minecraft 26.1, Java 25, Forge 62.0.9 and the matching YACL Reforged version
 2. Download the mod `.jar` file
 3. Place the file into your `.minecraft/mods/` folder
 4. Launch the game and verify the mod is loaded in the **Mods** menu

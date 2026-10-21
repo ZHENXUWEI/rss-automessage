@@ -34,7 +34,7 @@ public final class ForgeSmoke {
 
     public ForgeSmoke() {
         ClientTickEvent.Post.BUS.addListener(this::tick);
-        System.out.println("FORGE_SMOKE_REGISTERED bus=" + ClientTickEvent.Post.BUS + " listeners=" + ClientTickEvent.Post.BUS.hasListeners());
+        System.out.println("FORGE_SMOKE_REGISTERED");
     }
 
     private void tick(ClientTickEvent.Post event) {
