@@ -32,16 +32,16 @@ Files: config/AutoMessengerConfig.java, util/MessageImporter.java, command/AutoM
 - [x] Update README/build audit, copy the verified JAR to publish/1.1.5 and commit neofor-26.1.
 
 ## Task 5: Port and validate 26.2
-- [ ] Create neofor-26.2 from verified neofor-26.1; change native loader/YACL pins and MC constraints for 26.2.
-- [ ] Apply the established Fabric 26.2 GUI migrations: gui.setScreen()/screen(), gui.toastManager(), gui.hud.getChat() and gui.hud.isHidden(). Adapt any native NeoForge event signature changes using actual sources.
-- [ ] Run clean build and all 27 checks, inspect metadata/archive, review, update audit, package and commit.
+- [x] Create neofor-26.2 from verified neofor-26.1; change native loader/YACL pins and MC constraints for 26.2.
+- [x] Apply the established Fabric 26.2 GUI migrations: gui.setScreen()/screen(), gui.toastManager(), gui.hud.getChat() and gui.hud.isHidden(). Adapt any native NeoForge event signature changes using actual sources.
+- [x] Run clean build and all 27 checks, inspect metadata/archive, review, update audit, package and commit.
 
 ## Task 6: Port and validate 26.3
-- [ ] Create neofor-26.3 from verified neofor-26.2; change native loader/YACL pins and MC constraints for 26.3.
-- [ ] Use Blaze3D.openPath(Path) for folder opening; inspect native event signatures and SDL-related compatibility.
-- [ ] Run clean build and all 27 checks, inspect metadata/archive, review, update audit, package and commit.
+- [x] Create neofor-26.3 from verified neofor-26.2; change native loader/YACL pins and MC constraints for 26.3.
+- [x] Use Blaze3D.openPath(Path) for folder opening; inspect native event signatures and SDL-related compatibility.
+- [x] Run clean build and all 27 checks, inspect metadata/archive, review, update audit, package and commit.
 
 ## Task 7: Publish and verify
-- [ ] Produce a three-artifact manifest with exact dependency pins, sizes, SHA256 and test/runtime scope. Confirm git diff --check and preserved promotional PNG.
-- [ ] Push all three exact neofor-* branches without force, and compare git ls-remote SHA values with local heads.
-- [ ] Report artifact links, validation evidence, any beta dependency status and remaining manual-test limitations.
+- [x] Produce a three-artifact manifest with exact dependency pins, sizes, SHA256 and test/runtime scope. Confirm git diff --check and preserved promotional PNG.
+- [x] Push all three exact neofor-* branches without force, and compare git ls-remote SHA values with local heads.
+- [x] Report artifact links, validation evidence, any beta dependency status and remaining manual-test limitations.
