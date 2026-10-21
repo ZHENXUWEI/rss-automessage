@@ -2,6 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '7.0.29'
+    id 'net.minecraftforge.jarjar' version '0.2.3'
 }
 
 version = project.mod_version
@@ -58,10 +59,26 @@ minecraft {
     }
 }
 
+jarJar.register {
+    archiveClassifier = null
+    destinationDirectory = layout.buildDirectory.dir('libs')
+}
+
 dependencies {
     implementation minecraft.dependency("net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}")
     annotationProcessor "net.minecraftforge:eventbus-validator:${project.eventbus_validator_version}"
     implementation "dev.svyaton:yacl-reforged:${project.yacl_version}"
+    jarJar("dev.svyaton:yacl-reforged:${project.yacl_version}") { dependency ->
+        jarJar.configure(dependency) { range = "[${project.yacl_version}]" }
+    }
+    // Forge detects mixins only on root mods. Nested YACL needs this explicit
+    // request for Forge's existing optional MixinExtras library.
+    jarJar("io.github.llamalad7:mixinextras-forge:${project.mixinextras_version}") { dependency ->
+        jarJar.configure(dependency) {
+            constraint = true
+            range = "[${project.mixinextras_version},)"
+        }
+    }
 }
 
 processResources {
@@ -94,11 +111,22 @@ tasks.named('check') {
 }
 
 jar {
+    archiveClassifier = 'slim'
+    destinationDirectory = layout.buildDirectory.dir('intermediates')
     from('LICENSE') { rename { "${it}_${project.base.archivesName.get()}" } }
+    from('THIRD-PARTY-NOTICES.md') { into 'META-INF' }
+}
+
+tasks.named('sourcesJar') {
+    from('LICENSE')
+    from('THIRD-PARTY-NOTICES.md') { into 'META-INF' }
 }
 
 publishing {
     publications {
-        mavenJava(MavenPublication) { from components.java }
+        mavenJava(MavenPublication) {
+            artifact tasks.named('jarJar')
+            artifact tasks.named('sourcesJar')
+        }
     }
 }
