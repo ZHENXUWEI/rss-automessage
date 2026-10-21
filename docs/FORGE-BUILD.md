@@ -19,7 +19,7 @@ python scripts/prepare-yacl.py
 .\gradlew.bat --gradle-user-home .gradle-agent clean build --no-daemon --console=plain
 ```
 
-On Linux use `python3` and `./gradlew`. The preparation command downloads the fixed upstream tag object, checks the pinned source ZIP's SHA-256, leaves upstream source files unchanged, and invokes the author's build plus Maven publication. It saves dependency binary/source JARs, POM and provenance under `.gradle-agent/yacl-repository/dev/svyaton/yacl-reforged/<version>/`. The compiled dependency is separate from AutoMessage.
+On Linux use `python3` and `./gradlew`. The preparation command downloads the fixed upstream tag object, checks the pinned source ZIP's SHA-256, leaves upstream source files unchanged, and invokes the author's build plus Maven publication. It starts the upstream Gradle Wrapper JAR directly with Java, avoiding the upstream POSIX launcher's CRLF shebang on Linux. It saves dependency binary/source JARs, POM and provenance under `.gradle-agent/yacl-repository/dev/svyaton/yacl-reforged/<version>/`. The compiled dependency is separate from AutoMessage.
 
 | Minecraft | Author tag | Source commit |
 | --- | --- | --- |

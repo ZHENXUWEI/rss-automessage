@@ -74,10 +74,12 @@ def main():
     }
 }
 """, encoding="utf-8")
-    wrapper = upstream / ("gradlew.bat" if os.name == "nt" else "gradlew")
-    if os.name != "nt":
-        wrapper.chmod(wrapper.stat().st_mode | 0o100)
-    command = [str(wrapper), "--gradle-user-home", str(cache), "--init-script", str(init),
+    # Upstream's POSIX launcher has CRLF line endings, including its shebang.
+    # Launch the unchanged wrapper JAR directly, as gradlew.bat does on Windows.
+    java = str(Path(args.java_home).resolve() / "bin" / ("java.exe" if os.name == "nt" else "java")) if args.java_home else "java"
+    wrapper = upstream / "gradle/wrapper/gradle-wrapper.jar"
+    command = [java, "-classpath", str(wrapper), "org.gradle.wrapper.GradleWrapperMain",
+               "--gradle-user-home", str(cache), "--init-script", str(init),
                f":{mc}-forge:buildAndCollect", f":{mc}-forge:publishReforgedPublicationToAutoMessageLocalRepository",
                f"-Ptargets={mc}", "--configure-on-demand", "--no-daemon", "--console=plain",
                "-Dautomessage.yacl.repository=" + repository.as_uri()]
